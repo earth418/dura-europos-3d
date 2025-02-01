@@ -1,3 +1,17 @@
-[gd_scene format=3 uid="uid://b8bghg0eiplvr"]
+[gd_scene load_steps=4 format=3 uid="uid://b8bghg0eiplvr"]
+
+[ext_resource type="ArrayMesh" uid="uid://dpyy83e2wn5ry" path="res://assets/ground_mesh.res" id="1_uf2ue"]
+[ext_resource type="Script" path="res://geojson_mesh.gd" id="2_l5qk4"]
+
+[sub_resource type="PointMesh" id="PointMesh_r5bxq"]
 
 [node name="entire site" type="Node3D"]
+
+[node name="ground" type="MeshInstance3D" parent="."]
+transform = Transform3D(10, 0, 0, 0, 10, 0, 0, 0, 10, 0, 0, 0)
+mesh = ExtResource("1_uf2ue")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+mesh = SubResource("PointMesh_r5bxq")
+script = ExtResource("2_l5qk4")
+json_path = "res://assets/City walls-polygon-WGS84.geojson"
