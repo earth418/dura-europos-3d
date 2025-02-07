@@ -3,6 +3,7 @@ class_name GeoJSON_Mesh extends MeshInstance3D
 
 var json_string : String
 var json_contents = JSON.new()
+#var heightmap = preload("res://assets/heightmap.png")
 
 func load_json_file(json_filepath):
 	var json_file = FileAccess.open(json_filepath, FileAccess.READ)
@@ -34,22 +35,8 @@ func load_json_file(json_filepath):
 const center_loc = [34.74799827813365, 40.73026895370481]
 #const center_loc = [34.748, 40.730]
 
-#var temp_objs : Array[MeshInstance3D] = []
-
-
-func lat_lon_to_cartesian2(loc):
-	var radius = 6371 * 0.2 # meters
-	
-	#var loc1 = [rad_to_deg(center_loc[0]), rad_to_deg(center_loc[1])]
-	#var loc2 = [rad_to_deg(loc[0]), rad_to_deg(loc[1])]
-	#
-	#var x1 = asin(cos())
-
 func lat_lon_to_cartesian(loc):
 	# Returns the lat/lon as a vector3 relative to the origin
-	#return lat_lon_to_cartesian2(loc)
-	#print(center_loc)
-	
 	var radius = 6371000 # meters, * 0.5 because our 
 	
 	var loc1 = [deg_to_rad(center_loc[0]), deg_to_rad(center_loc[1])]
@@ -68,6 +55,8 @@ func generate_geojson_mesh():
 		$test.remove_child(temp_obj)
 		
 	var geojson = json_contents.data
+	var heightmap = preload("res://assets/heightmap.png")
+
 	
 	for feature in geojson["features"]:
 		var feature_name = feature["properties"]["id"]
@@ -75,26 +64,49 @@ func generate_geojson_mesh():
 			mesh.surface_set_name(0, feature_name)
 		
 		var coordinates = feature["geometry"]["coordinates"]
+		var locations : Array[Vector3] = []	
 		
-		#var i = 0
 		for coordinate in coordinates[0]:
-			#i += 1
-			#if i > 10:
-				#return
+			
 			var coordvec = [coordinate[1], coordinate[0]]
 			#print("hi ", coordvec)
-			var loc = lat_lon_to_cartesian(coordvec) + Vector3(0.0, 250.0, 0.0)
+			var loc = lat_lon_to_cartesian(coordvec)
 			print(loc)
-			var new_sphere = $sphere.duplicate()
-			#var new_sphere = MeshInstance3D.new()
-			#new_sphere.mesh = new_sphere_mesh
-			$test.add_child(new_sphere)
-			new_sphere.global_position = loc
-			#temp_objs.append(new_sphere)
-			#print("\n")
+			# total size is ~1979.6
+			var pxcoord_loc = (Vector2(loc.x, loc.y) + Vector2(989.8, 989.8)) / (3.92)
+			var pxcoord = Vector2i(pxcoord_loc)
+			#pxcoord += Vector2i(252, 252)
+			var heightval = heightmap.get_pixelv(pxcoord)
+			var height = 174.5 + 57.3 * heightval.r
+			#print(height)
+			
+			#var ray_query = PhysicsRayQueryParameters3D.new()
+			#ray_query.from = loc + Vector3.UP * 235
+			#ray_query.to = loc + Vector3.UP * 170
+			
+			loc.y = height
+			
+			locations.append(loc)
+			
+		for i in range(len(locations) - 1):
+			
+			var loc1 = locations[i + 0]
+			var loc2 = locations[i + 1]
+			
+			var difference = loc2 - loc1
+			var yaw = atan2(difference.z, difference.x)
+			var scale = difference.length()
+
+			var new_cube = $cube.duplicate()
+			$test.add_child(new_cube)
+			
+			new_cube.global_position = (loc1 + loc2) / 2 + Vector3(0, 5, 0)
+			new_cube.global_scale(Vector3(scale, 10.0, 1.0))
+			new_cube.global_rotate(Vector3.UP, -yaw)
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
+	
 	pass
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
