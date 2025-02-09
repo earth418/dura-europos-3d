@@ -37,7 +37,7 @@ const center_loc = [34.74799827813365, 40.73026895370481]
 
 func lat_lon_to_cartesian(loc):
 	# Returns the lat/lon as a vector3 relative to the origin
-	var radius = 6371000 # meters, * 0.5 because our 
+	var radius = 6371000 # meters
 	
 	var loc1 = [deg_to_rad(center_loc[0]), deg_to_rad(center_loc[1])]
 	var loc2 = [deg_to_rad(loc[0]), deg_to_rad(loc[1])]
@@ -71,12 +71,13 @@ func generate_geojson_mesh():
 			var coordvec = [coordinate[1], coordinate[0]]
 			#print("hi ", coordvec)
 			var loc = lat_lon_to_cartesian(coordvec)
-			print(loc)
+			#print(loc / 3.92 + Vector3.ONE * 252.5)
 			# total size is ~1979.6
-			var pxcoord_loc = (Vector2(loc.x, loc.y) + Vector2(989.8, 989.8)) / (3.92)
+			var pxcoord_loc = (Vector2(loc.x, loc.z) + Vector2(989.8, 989.8)) / (3.92)
 			var pxcoord = Vector2i(pxcoord_loc)
 			#pxcoord += Vector2i(252, 252)
 			var heightval = heightmap.get_pixelv(pxcoord)
+			print(pxcoord)
 			var height = 174.5 + 57.3 * heightval.r
 			#print(height)
 			
