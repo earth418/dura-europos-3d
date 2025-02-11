@@ -25,12 +25,13 @@ func load_json_file(json_filepath):
 		generate_geojson_mesh()
 		refresh = false
 
-@export var clear_dots : bool:
+@export var clear : bool:
 	set(new_val):
 		for temp_obj in $test.get_children(true):
 			$test.remove_child(temp_obj)
-		clear_dots = false
+		clear = false
 
+@export var debug_height = false
 
 const center_loc = [34.74799827813365, 40.73026895370481]
 #const center_loc = [34.748, 40.730]
@@ -56,12 +57,29 @@ func generate_geojson_mesh():
 		
 	var geojson = json_contents.data
 	var heightmap = preload("res://assets/heightmap.png")
+	
+	
+	if debug_height:
+		for i in range(50):
+			for j in range(50):
+				var coords = Vector2i(i * 10, j * 10)
+				
+				var heightval = heightmap.get_pixelv(coords)
+				#print(coords)
+				var height = 174.5 + 57.3 * heightval.r
+				
+				var new_cube = $cube.duplicate()
+				$test.add_child(new_cube)
+				
+				new_cube.global_position = Vector3(coords.x * 3.92 - 989, height, coords.y * 3.92 - 989)
+				new_cube.global_scale(Vector3(15.0, 15.0, 15.0))
+		return
 
 	
-	for feature in geojson["features"]:
-		var feature_name = feature["properties"]["id"]
-		if feature_name != null: 
-			mesh.surface_set_name(0, feature_name)
+	for feature in geojson["data"]["features"]:
+		#var feature_name = feature["properties"]["id"]
+		#if feature_name != null: 
+			#mesh.surface_set_name(0, feature_name)
 		
 		var coordinates = feature["geometry"]["coordinates"]
 		var locations : Array[Vector3] = []	
@@ -77,9 +95,11 @@ func generate_geojson_mesh():
 			var pxcoord = Vector2i(pxcoord_loc)
 			#pxcoord += Vector2i(252, 252)
 			var heightval = heightmap.get_pixelv(pxcoord)
-			print(pxcoord)
 			var height = 174.5 + 57.3 * heightval.r
-			#print(height)
+			
+			# I might go back to this raycast method, but the fact that this doesn't work is scaring me a bit
+			# Maybe the blender model is wrong?
+			# I probably should be making it from the heightmap directly, anyway, actually
 			
 			#var ray_query = PhysicsRayQueryParameters3D.new()
 			#ray_query.from = loc + Vector3.UP * 235
@@ -89,6 +109,7 @@ func generate_geojson_mesh():
 			
 			locations.append(loc)
 			
+		print("Creating model with ", len(locations), " locations")
 		for i in range(len(locations) - 1):
 			
 			var loc1 = locations[i + 0]

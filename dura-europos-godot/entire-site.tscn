@@ -1,18 +1,8 @@
-[gd_scene load_steps=11 format=3 uid="uid://b8bghg0eiplvr"]
+[gd_scene load_steps=8 format=3 uid="uid://b8bghg0eiplvr"]
 
+[ext_resource type="PackedScene" uid="uid://his6syakuyim" path="res://geoJSON_mesh.tscn" id="1_e5equ"]
 [ext_resource type="ArrayMesh" uid="uid://dpyy83e2wn5ry" path="res://assets/ground_mesh.res" id="1_uf2ue"]
-[ext_resource type="Script" path="res://geojson_mesh.gd" id="2_l5qk4"]
 [ext_resource type="Shader" uid="uid://jp6b0u21fv2d" path="res://test.tres" id="3_uaxmh"]
-
-[sub_resource type="ArrayMesh" id="ArrayMesh_001jk"]
-
-[sub_resource type="SphereMesh" id="SphereMesh_xosvb"]
-radius = 10.0
-height = 25.0
-radial_segments = 4
-rings = 6
-
-[sub_resource type="BoxMesh" id="BoxMesh_nkt3r"]
 
 [sub_resource type="SphereMesh" id="SphereMesh_asv8i"]
 radius = 20.0
@@ -32,21 +22,6 @@ material = SubResource("ShaderMaterial_yjxum")
 size = Vector2(2000, 2000)
 
 [node name="entire site" type="Node3D"]
-
-[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
-mesh = SubResource("ArrayMesh_001jk")
-script = ExtResource("2_l5qk4")
-json_path = "res://assets/City walls-polygon-WGS84.geojson"
-
-[node name="sphere" type="MeshInstance3D" parent="MeshInstance3D"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -65, 0)
-mesh = SubResource("SphereMesh_xosvb")
-
-[node name="test" type="Node3D" parent="MeshInstance3D"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 0.830558, 0, 0, 0)
-
-[node name="cube" type="MeshInstance3D" parent="MeshInstance3D"]
-mesh = SubResource("BoxMesh_nkt3r")
 
 [node name="lowest_height" type="MeshInstance3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 360.744, 174.5, -343.698)
@@ -71,3 +46,37 @@ shape = SubResource("HeightMapShape3D_4ul1s")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 74, 0)
 visible = false
 mesh = SubResource("PlaneMesh_kjo07")
+
+[node name="GeoJSON_Meshes" type="Node3D" parent="."]
+
+[node name="Walls" parent="GeoJSON_Meshes" instance=ExtResource("1_e5equ")]
+skeleton = NodePath("../..")
+
+[node name="Walls_fromQuery" parent="GeoJSON_Meshes" instance=ExtResource("1_e5equ")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 139.883, -4.76837e-07, -211.689)
+skeleton = NodePath("../..")
+json_path = "res://assets/geojsons/Q107370651.geojson"
+
+[node name="Model1" parent="GeoJSON_Meshes" instance=ExtResource("1_e5equ")]
+json_path = "res://assets/geojsons/Q38199305.geojson"
+
+[node name="Model2" parent="GeoJSON_Meshes" instance=ExtResource("1_e5equ")]
+json_path = "res://assets/geojsons/Q122158564.geojson"
+
+[node name="Model3" parent="GeoJSON_Meshes" instance=ExtResource("1_e5equ")]
+json_path = "res://assets/geojsons/Q122158567.geojson"
+
+[node name="Model4" parent="GeoJSON_Meshes" instance=ExtResource("1_e5equ")]
+json_path = "res://assets/geojsons/Q108073642.geojson"
+
+[node name="Model5" parent="GeoJSON_Meshes" instance=ExtResource("1_e5equ")]
+json_path = "res://assets/geojsons/Q115328450.geojson"
+
+[node name="Model6" parent="GeoJSON_Meshes" instance=ExtResource("1_e5equ")]
+json_path = "res://assets/geojsons/Q122158573.geojson"
+
+[node name="Model7" parent="GeoJSON_Meshes" instance=ExtResource("1_e5equ")]
+json_path = "res://assets/geojsons/Q122158553.geojson"
+
+[node name="Model8" parent="GeoJSON_Meshes" instance=ExtResource("1_e5equ")]
+json_path = "res://assets/geojsons/Q121764043.geojson"
