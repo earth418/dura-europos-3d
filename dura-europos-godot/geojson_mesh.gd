@@ -93,9 +93,26 @@ func generate_geojson_mesh():
 			# total size is ~1979.6
 			var pxcoord_loc = (Vector2(loc.x, loc.z) + Vector2(989.8, 989.8)) / (3.92)
 			var pxcoord = Vector2i(pxcoord_loc)
-			#pxcoord += Vector2i(252, 252)
-			var heightval = heightmap.get_pixelv(pxcoord)
-			var height = 174.5 + 57.3 * heightval.r
+			
+			var heightval00 = heightmap.get_pixelv(pxcoord).r
+			
+			var heightval = 0
+			
+			if pxcoord.x < 504.0 and pxcoord.y < 504.0:
+				var diff = pxcoord_loc - Vector2(pxcoord)
+				var om_diff = Vector2.ONE - diff
+				
+				# Let's do some bilinear interpolation
+				var heightval10 = heightmap.get_pixelv(pxcoord + Vector2i(1.0, 0.0)).r
+				var heightval01 = heightmap.get_pixelv(pxcoord + Vector2i(0.0, 1.0)).r
+				var heightval11 = heightmap.get_pixelv(pxcoord + Vector2i.ONE).r
+			
+				heightval = heightval00 * om_diff.x * om_diff.y + heightval10 * diff.x * om_diff.y + \
+							heightval01 * om_diff.x * diff.y + heightval11 * diff.x * diff.y
+			else:
+				heightval = heightval00
+				
+			var height = 174.5 + 57.3 * heightval
 			
 			# I might go back to this raycast method, but the fact that this doesn't work is scaring me a bit
 			# Maybe the blender model is wrong?
@@ -118,12 +135,13 @@ func generate_geojson_mesh():
 			var difference = loc2 - loc1
 			var yaw = atan2(difference.z, difference.x)
 			var scale = difference.length()
+			var height_scale = max(10.0, 1.5 * abs(loc1.y - loc2.y))
 
 			var new_cube = $cube.duplicate()
 			$test.add_child(new_cube)
 			
 			new_cube.global_position = (loc1 + loc2) / 2 + Vector3(0, 5, 0)
-			new_cube.global_scale(Vector3(scale, 10.0, 1.0))
+			new_cube.global_scale(Vector3(scale, height_scale, 1.0))
 			new_cube.global_rotate(Vector3.UP, -yaw)
 
 # Called when the node enters the scene tree for the first time.
