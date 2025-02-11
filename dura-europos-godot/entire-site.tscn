@@ -25,10 +25,12 @@ size = Vector2(2000, 2000)
 
 [node name="lowest_height" type="MeshInstance3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 360.744, 174.5, -343.698)
+visible = false
 mesh = SubResource("SphereMesh_asv8i")
 
 [node name="highest_height" type="MeshInstance3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -358.904, 231.8, -114.969)
+visible = false
 mesh = SubResource("SphereMesh_asv8i")
 
 [node name="Ground" type="StaticBody3D" parent="."]
