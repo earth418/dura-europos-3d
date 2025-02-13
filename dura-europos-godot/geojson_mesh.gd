@@ -75,6 +75,8 @@ func generate_geojson_mesh():
 				new_cube.global_scale(Vector3(15.0, 15.0, 15.0))
 		return
 
+	if "data" not in geojson:
+		return
 	
 	for feature in geojson["data"]["features"]:
 		#var feature_name = feature["properties"]["id"]

@@ -48,7 +48,7 @@ func generate_mesh():
 			#normals.append(Vector3(0.0, 1.0, 0.0))
 			
 			var index = j * size.x + i
-			uvs.append(Vector2(2 * i / size.x - 1, 2 * j / size.y - 1))
+			uvs.append(Vector2(float(j) / size.x, float(i) / size.y))
 			#if data[index] < min_val:
 				#min_val = data[index]
 			#if data[index] > max_val:
