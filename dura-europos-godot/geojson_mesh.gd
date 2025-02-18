@@ -8,6 +8,8 @@ var json_contents = JSON.new()
 @onready var mesh_parent : Node3D = $test
 var spawned_meshes : Array[MeshInstance3D] = []
 
+var material : Material = preload("res://white_standard_mat.tres")
+
 func load_json_file(json_filepath):
 	var json_file = FileAccess.open(json_filepath, FileAccess.READ)
 	json_string = json_file.get_as_text()
@@ -58,7 +60,7 @@ func generate_geojson_mesh():
 	
 	for temp_obj in $test.get_children(true):
 		$test.remove_child(temp_obj)
-	spawned_meshes = []
+	#spawned_meshes = []
 		
 	var geojson = json_contents.data
 	var heightmap = preload("res://assets/heightmap.png")
@@ -124,10 +126,6 @@ func generate_geojson_mesh():
 			# Maybe the blender model is wrong?
 			# I probably should be making it from the heightmap directly, anyway, actually
 			
-			#var ray_query = PhysicsRayQueryParameters3D.new()
-			#ray_query.from = loc + Vector3.UP * 235
-			#ray_query.to = loc + Vector3.UP * 170
-			
 			loc.y = height
 			
 			locations.append(loc)
@@ -139,7 +137,7 @@ func generate_geojson_mesh():
 		#var minxz_maxxz = [2000, 2000, -2000, -2000]
 		var emin = Vector3(2000, 200.0, 2000)
 		var emax = Vector3(-2000.0, -200, -2000)
-		var new_material = $cube.mesh.surface_get_material(0).duplicate()
+		# var new_material = $cube.mesh.surface_get_material(0).duplicate()
 		
 		for i in range(len(locations) - 1):
 			
@@ -148,7 +146,7 @@ func generate_geojson_mesh():
 			
 			var difference = loc2 - loc1
 			var yaw = atan2(difference.z, difference.x)
-			var scale = difference.length()
+			var xscale = difference.length()
 			var height_scale = max(10.0, 1.5 * abs(loc1.y - loc2.y))
 			
 			emin = emin.min(loc1)
@@ -157,18 +155,19 @@ func generate_geojson_mesh():
 			#collision_points.append(loc1)
 			#collision_points.append(loc1 + Vector3(0, height_scale, 0))
 			
-			var new_cube = $cube.duplicate()
+			var new_cube : MeshInstance3D = $cube.duplicate()
 			$test.add_child(new_cube)
-			spawned_meshes.append(new_cube)
+			#spawned_meshes.append(new_cube)
 			
-			(new_cube as MeshInstance3D).mesh.surface_set_material(0, new_material)
-			new_cube.global_position = (loc1 + loc2) / 2 + Vector3(0, height_scale / 2, 0)
-			new_cube.global_scale(Vector3(scale, height_scale, 1.0))
-			new_cube.global_rotate(Vector3.UP, -yaw)
+			#new_cube.mesh.surface_set_material(0, material)
+			new_cube.position = (loc1 + loc2) / 2 + Vector3(0, height_scale, 0)
+			new_cube.scale = Vector3(xscale, height_scale, 1.0)
+			#(new_cube as MeshInstance3D).global_rotate()
+			new_cube.quaternion = Quaternion(Vector3.UP, -yaw)
 			
 		
-		($CollisionShape3D.shape as BoxShape3D).size = emax - emin
-		$CollisionShape3D.global_position = (emax + emin) / 2 
+		#($CollisionShape3D.shape as BoxShape3D).size = emax - emin
+		#$CollisionShape3D.global_position = (emax + emin) / 2 
 		#($CollisionShape3D.shape as ConcavePolygonShape3D).points = collision_points
 
 # Called when the node enters the scene tree for the first time.

@@ -60,14 +60,14 @@ func _input(event):
 		for selected_obj in selected_objects:
 			var obj = selected_obj as GeoJSON_Mesh
 			if obj:
-				for cube_obj in obj.spawned_meshes:
-					cube_obj.get_active_material(0).next_pass = null
+				obj.material.next_pass = null
+				#for cube_obj in obj.spawned_meshes:
+					#cube_obj.get_active_material(0).next_pass = null
 		selected_objects = []
 		var obj = object as GeoJSON_Mesh
 		if obj:
 			print(obj.json_path)
-			for cube_obj in obj.spawned_meshes:
-				cube_obj.get_active_material(0).next_pass = load("res://outline_shader.tres")
+			obj.material.next_pass = load("res://outline_shader.tres")
 		else:
 			print(object)
 		

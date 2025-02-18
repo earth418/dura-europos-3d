@@ -37,7 +37,7 @@ func request_alL_buildings():
 	
 	pass
 
-func create_object(filename):
+func create_object(filename : String):
 	var new_mesh : GeoJSON_Mesh = $geojson_mesh.duplicate()
 	$test.add_child(new_mesh)
 	new_mesh.json_path = filename
@@ -58,7 +58,8 @@ func load_objects():
 			
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
-	load_objects()
+	# load_objects()
+	pass
 	#var httpc = HTTPClient.new()
 	#if httpr.get_parent() != self:
 		#add_child(httpr)
