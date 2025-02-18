@@ -1,18 +1,25 @@
-[gd_scene load_steps=4 format=3 uid="uid://his6syakuyim"]
+[gd_scene load_steps=5 format=3 uid="uid://his6syakuyim"]
 
 [ext_resource type="Script" path="res://geojson_mesh.gd" id="1_myju2"]
 
-[sub_resource type="ArrayMesh" id="ArrayMesh_001jk"]
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_xnwf8"]
 
 [sub_resource type="BoxMesh" id="BoxMesh_nkt3r"]
+material = SubResource("StandardMaterial3D_xnwf8")
 
-[node name="MeshInstance3D" type="MeshInstance3D"]
-mesh = SubResource("ArrayMesh_001jk")
+[sub_resource type="BoxShape3D" id="BoxShape3D_qdq4j"]
+size = Vector3(28.5467, 23.0365, 30.4533)
+
+[node name="GeoJSON_Mesh" type="Area3D"]
 script = ExtResource("1_myju2")
-json_path = "res://assets/City walls-polygon-WGS84.geojson"
+json_path = "res://assets/geojsons/Q107370651.geojson"
 
 [node name="test" type="Node3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 0.830558, 0, 0, 0)
 
 [node name="cube" type="MeshInstance3D" parent="."]
 mesh = SubResource("BoxMesh_nkt3r")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -18.3811, 209.713, -20.5058)
+shape = SubResource("BoxShape3D_qdq4j")

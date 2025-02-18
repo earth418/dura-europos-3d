@@ -58,10 +58,12 @@ func load_objects():
 			
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
-	if httpr.get_parent() != self:
-		add_child(httpr)
-		
-	httpr.request_completed.connect(self._http_request_completed)
+	load_objects()
+	#var httpc = HTTPClient.new()
+	#if httpr.get_parent() != self:
+		#add_child(httpr)
+		#
+	#httpr.request_completed.connect(self._http_request_completed)
 
 func _http_request_completed(result, response_code, headers, body):
 	pass

@@ -1,9 +1,12 @@
 @tool
-class_name GeoJSON_Mesh extends MeshInstance3D
+class_name GeoJSON_Mesh extends Area3D
 
 var json_string : String
 var json_contents = JSON.new()
 #var heightmap = preload("res://assets/heightmap.png")
+
+@onready var mesh_parent : Node3D = $test
+var spawned_meshes : Array[MeshInstance3D] = []
 
 func load_json_file(json_filepath):
 	var json_file = FileAccess.open(json_filepath, FileAccess.READ)
@@ -29,6 +32,7 @@ func load_json_file(json_filepath):
 	set(new_val):
 		for temp_obj in $test.get_children(true):
 			$test.remove_child(temp_obj)
+		spawned_meshes = []
 		clear = false
 
 @export var debug_height = false
@@ -54,10 +58,10 @@ func generate_geojson_mesh():
 	
 	for temp_obj in $test.get_children(true):
 		$test.remove_child(temp_obj)
+	spawned_meshes = []
 		
 	var geojson = json_contents.data
 	var heightmap = preload("res://assets/heightmap.png")
-	
 	
 	if debug_height:
 		for i in range(50):
@@ -129,6 +133,14 @@ func generate_geojson_mesh():
 			locations.append(loc)
 			
 		print("Creating model with ", len(locations), " locations")
+		#var shape = $CollisionShape3D.shape as ConvexPolygonShape3D
+		#shape.points = []
+		#var collision_points = []
+		#var minxz_maxxz = [2000, 2000, -2000, -2000]
+		var emin = Vector3(2000, 200.0, 2000)
+		var emax = Vector3(-2000.0, -200, -2000)
+		var new_material = $cube.mesh.surface_get_material(0).duplicate()
+		
 		for i in range(len(locations) - 1):
 			
 			var loc1 = locations[i + 0]
@@ -138,17 +150,29 @@ func generate_geojson_mesh():
 			var yaw = atan2(difference.z, difference.x)
 			var scale = difference.length()
 			var height_scale = max(10.0, 1.5 * abs(loc1.y - loc2.y))
-
+			
+			emin = emin.min(loc1)
+			emax = emax.max(loc1)
+				
+			#collision_points.append(loc1)
+			#collision_points.append(loc1 + Vector3(0, height_scale, 0))
+			
 			var new_cube = $cube.duplicate()
 			$test.add_child(new_cube)
+			spawned_meshes.append(new_cube)
 			
-			new_cube.global_position = (loc1 + loc2) / 2 + Vector3(0, 5, 0)
+			(new_cube as MeshInstance3D).mesh.surface_set_material(0, new_material)
+			new_cube.global_position = (loc1 + loc2) / 2 + Vector3(0, height_scale / 2, 0)
 			new_cube.global_scale(Vector3(scale, height_scale, 1.0))
 			new_cube.global_rotate(Vector3.UP, -yaw)
+			
+		
+		($CollisionShape3D.shape as BoxShape3D).size = emax - emin
+		$CollisionShape3D.global_position = (emax + emin) / 2 
+		#($CollisionShape3D.shape as ConcavePolygonShape3D).points = collision_points
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
-	
 	pass
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
