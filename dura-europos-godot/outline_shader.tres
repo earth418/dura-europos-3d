@@ -8,4 +8,4 @@ shader = ExtResource("1_mmth7")
 shader_parameter/normal_threshold = 0.1
 shader_parameter/depth_threshold = 0.05
 shader_parameter/depth_artifact_correction_coef = 2.0
-shader_parameter/outline_color = null
+shader_parameter/outline_color = Color(1, 1, 0, 1)
