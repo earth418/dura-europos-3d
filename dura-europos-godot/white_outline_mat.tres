@@ -1,0 +1,6 @@
+[gd_resource type="StandardMaterial3D" load_steps=2 format=3 uid="uid://bevybomsmavue"]
+
+[ext_resource type="Material" uid="uid://ddrv5bfbsvg0p" path="res://outline_shader.tres" id="1_o8mws"]
+
+[resource]
+next_pass = ExtResource("1_o8mws")

@@ -7,7 +7,7 @@
 material = ExtResource("2_mfvhh")
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_qdq4j"]
-size = Vector3(5, 5, 5)
+size = Vector3(28.5467, 23.0365, 30.4533)
 
 [node name="GeoJSON_Mesh" type="Area3D"]
 script = ExtResource("1_myju2")

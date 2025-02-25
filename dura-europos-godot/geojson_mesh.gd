@@ -8,7 +8,11 @@ var json_contents = JSON.new()
 @onready var mesh_parent : Node3D = $test
 var spawned_meshes : Array[MeshInstance3D] = []
 
-var material : Material = preload("res://white_standard_mat.tres")
+var material : Material = preload("res://white_standard_mat.tres"):
+	set(new_material):
+		for temp_obj in $test.get_children(true):
+			(temp_obj as MeshInstance3D).set_surface_override_material(0, new_material)
+		material = new_material
 
 func load_json_file(json_filepath):
 	var json_file = FileAccess.open(json_filepath, FileAccess.READ)
@@ -90,7 +94,7 @@ func generate_geojson_mesh():
 			#mesh.surface_set_name(0, feature_name)
 		
 		var coordinates = feature["geometry"]["coordinates"]
-		var locations : Array[Vector3] = []	
+		var locations : Array[Vector3] = []
 		
 		for coordinate in coordinates[0]:
 			
@@ -106,6 +110,7 @@ func generate_geojson_mesh():
 			
 			var heightval = 0
 			
+			# if we're within the image
 			if pxcoord.x < 504.0 and pxcoord.y < 504.0:
 				var diff = pxcoord_loc - Vector2(pxcoord)
 				var om_diff = Vector2.ONE - diff
@@ -166,8 +171,8 @@ func generate_geojson_mesh():
 			new_cube.quaternion = Quaternion(Vector3.UP, -yaw)
 			
 		
-		#($CollisionShape3D.shape as BoxShape3D).size = emax - emin
-		#$CollisionShape3D.global_position = (emax + emin) / 2 
+		($CollisionShape3D.shape as BoxShape3D).size = (emax - emin) * 2
+		$CollisionShape3D.global_position = (emax + emin) / 2 
 		#($CollisionShape3D.shape as ConcavePolygonShape3D).points = collision_points
 
 # Called when the node enters the scene tree for the first time.
