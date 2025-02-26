@@ -3,6 +3,7 @@ class_name GeoJSON_Mesh extends Area3D
 
 var json_string : String
 var json_contents = JSON.new()
+var mesh_location : Vector3
 #var heightmap = preload("res://assets/heightmap.png")
 
 @onready var mesh_parent : Node3D = $test
@@ -173,6 +174,7 @@ func generate_geojson_mesh():
 		
 		($CollisionShape3D.shape as BoxShape3D).size = (emax - emin) * 2
 		$CollisionShape3D.global_position = (emax + emin) / 2 
+		mesh_location = (emax + emin) / 2
 		#($CollisionShape3D.shape as ConcavePolygonShape3D).points = collision_points
 
 # Called when the node enters the scene tree for the first time.
