@@ -20,12 +20,15 @@ const ALT_MULTIPLIER = 1.0 / SHIFT_MULTIPLIER
 
 # External var
 @export_category("Orbit Camera")
-@export var SCROLL_SPEED: float = 20 # Speed when use scroll mouse
-@export var ZOOM_SPEED: float = 5 # Speed use when is_zoom_in or is_zoom_out is true
-@export var DEFAULT_DISTANCE: float = 20 # Default distance of the Node
-@export var ROTATE_SPEED: float = 10
+@export var SCROLL_SPEED: float = 25 # Speed when use scroll mouse
+@export var ZOOM_SPEED: float = 15 # Speed use when is_zoom_in or is_zoom_out is true
+@export var DEFAULT_DISTANCE: float = 100 # Default distance of the Node
+@export var ROTATE_SPEED: float = 1
 #@export var ANCHOR_NODE_PATH: NodePath
-var anchor_transform : Transform3D
+var anchor_transform : Transform3D :
+	set(new_transform):
+		_rotation = new_transform.basis.get_rotation_quaternion().get_euler()
+		anchor_transform = new_transform
 @export var MOUSE_ZOOM_SPEED: float = 10
 @export var TOUCH_INVERT_ZOOM: bool = false
 
@@ -71,7 +74,7 @@ func _ready() -> void:
 	_distance = DEFAULT_DISTANCE
 	#_anchor_node = self.get_node(ANCHOR_NODE_PATH)
 	#_rotation = _anchor_node.transform.basis.get_rotation_quaternion().get_euler()
-	_rotation = anchor_transform.basis.get_rotation_quaternion().get_euler()
+	#_rotation = anchor_transform.basis.get_rotation_quaternion().get_euler()
 
 
 func _input(event):
@@ -177,11 +180,13 @@ func _freelook_update_mouselook():
 func _orbit_process_transformation(delta: float):
 	# Update rotation
 	_rotation.x += -_move_speed.y * delta * ROTATE_SPEED
-	_rotation.y += -_move_speed.x * delta * ROTATE_SPEED
-	if _rotation.x < -PI/2:
-		_rotation.x = -PI/2
-	if _rotation.x > PI/2:
-		_rotation.x = PI/2
+	_rotation.y += _move_speed.x * delta * ROTATE_SPEED
+	if _rotation.x < 0.05:
+		_rotation.x = 0.05
+	if _rotation.x > PI:
+		_rotation.x = PI
+		
+	#print(_rotation.x)
 	_move_speed = Vector2()
 	
 	# Update distance
@@ -190,8 +195,17 @@ func _orbit_process_transformation(delta: float):
 		_distance = 0
 	_scroll_speed = 0
 	
-	self.set_identity()
-	self.translate_object_local(Vector3(0,0,_distance))
+	var x = sin(_rotation.x) * cos(_rotation.y)
+	var y = cos(_rotation.x)
+	var z = sin(_rotation.x) * sin(_rotation.y)
+	
+	global_position = anchor_transform.origin + _distance * Vector3(x, y, z)
+	look_at(anchor_transform.origin)
+	
+	if global_position.y < 200:
+		global_position.y = 200
+	#self.set_identity()
+	#self.translate_object_local(Vector3(0,0,_distance))
 	#_anchor_node.set_identity()
 	#_anchor_node.transform.basis = Basis(Quaternion.from_euler(_rotation))
 

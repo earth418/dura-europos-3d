@@ -95,13 +95,18 @@ func _input(event):
 	if event.is_action_pressed("ui_cancel"):
 		Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 
+#var is_focused = false
 
 func _on_focus_button_pressed() -> void:
 	if not selected_object:
 		return
 	
-	selecting = false
+	$Camera3D/Control/Button.text = "Click here to stop focusing on 
+		object" if selecting else "Click here to focus on object"
 	
-	$Camera3D.camera_type = FreeLookOrbitCamera.CameraType.ORBIT
-	#$Camera3D.ANCHOR_NODE_PATH = selected_object.get_path()
-	$Camera3D.anchor_transform = Transform3D(Basis(), selected_object.mesh_location)
+	$Camera3D.camera_type = FreeLookOrbitCamera.CameraType.ORBIT if selecting \
+			else FreeLookOrbitCamera.CameraType.FREELOOK
+	if selecting:
+		$Camera3D.anchor_transform = Transform3D(Basis(), selected_object.mesh_location)
+
+	selecting = !selecting

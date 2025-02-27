@@ -46,12 +46,19 @@ func create_object(filename : String):
 	new_mesh.generate_geojson_mesh()
 
 func load_objects():
+	var generated_ids = {}
 	var geojson_dir = DirAccess.open("res://assets/geojsons")
 	if geojson_dir:
 		geojson_dir.list_dir_begin()
 		var json_filename = geojson_dir.get_next()
 		while json_filename != "":
-			#print(json_filename)
+			var building_id = json_filename.split(".")[0]
+			if building_id in generated_ids:
+				json_filename = geojson_dir.get_next()
+				print("repeated " + building_id + "!")
+				continue
+			
+			generated_ids[building_id] = 0
 			create_object("res://assets/geojsons/" + json_filename)
 			json_filename = geojson_dir.get_next()
 			
@@ -59,7 +66,7 @@ func load_objects():
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
 	load_objects()
-	#pass
+	pass
 	#var httpc = HTTPClient.new()
 	#if httpr.get_parent() != self:
 		#add_child(httpr)
