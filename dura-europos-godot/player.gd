@@ -97,16 +97,37 @@ func _input(event):
 
 #var is_focused = false
 
+func focus_on_object(obj):
+	
+	$Camera3D.camera_type = FreeLookOrbitCamera.CameraType.ORBIT
+	$Camera3D.anchor_transform = Transform3D(Basis(), obj.mesh_location)
+	$Camera3D/Control/Button.text = "Click here to stop focusing on object"
+	
+	var id = obj.json_path.split("/")[-1].split(".")[0]
+	$Camera3D/Control/WikiGallery.get_pics_depicting_building(id)
+	
+	
+func defocus_on_object(obj):
+	$Camera3D/Control/Button.text = "Click here to focus on object"
+	$Camera3D.camera_type = FreeLookOrbitCamera.CameraType.FREELOOK
+	#pass
+
 func _on_focus_button_pressed() -> void:
 	if not selected_object:
 		return
 	
-	$Camera3D/Control/Button.text = "Click here to stop focusing on 
-		object" if selecting else "Click here to focus on object"
-	
-	$Camera3D.camera_type = FreeLookOrbitCamera.CameraType.ORBIT if selecting \
-			else FreeLookOrbitCamera.CameraType.FREELOOK
 	if selecting:
-		$Camera3D.anchor_transform = Transform3D(Basis(), selected_object.mesh_location)
+		focus_on_object(selected_object)
+	else:
+		defocus_on_object(selected_object)
+	
+	
+	#$Camera3D/Control/Button.text = "Click here to stop focusing on 
+		#object" if selecting else "Click here to focus on object"
+	#
+	#$Camera3D.camera_type = FreeLookOrbitCamera.CameraType.ORBIT if selecting \
+			#else FreeLookOrbitCamera.CameraType.FREELOOK
+	#if selecting:
+		#$Camera3D.anchor_transform = Transform3D(Basis(), selected_object.mesh_location)
 
 	selecting = !selecting

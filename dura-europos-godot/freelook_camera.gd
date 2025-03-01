@@ -20,8 +20,8 @@ const ALT_MULTIPLIER = 1.0 / SHIFT_MULTIPLIER
 
 # External var
 @export_category("Orbit Camera")
-@export var SCROLL_SPEED: float = 25 # Speed when use scroll mouse
-@export var ZOOM_SPEED: float = 15 # Speed use when is_zoom_in or is_zoom_out is true
+@export var SCROLL_SPEED: float = 250 # Speed when use scroll mouse
+@export var ZOOM_SPEED: float = 50 # Speed use when is_zoom_in or is_zoom_out is true
 @export var DEFAULT_DISTANCE: float = 100 # Default distance of the Node
 @export var ROTATE_SPEED: float = 1
 #@export var ANCHOR_NODE_PATH: NodePath
