@@ -1,4 +1,4 @@
-class_name WikiGallery extends ItemList
+class_name WikiGallery extends Control
 
 var associated_pics = []
 var pics_urls = {}
@@ -10,6 +10,8 @@ var httpr : HTTPRequest
 			#
 		building_id = new_id
 
+func clear_list():
+	$ItemList.clear()
 
 func get_pics_depicting_building(building_id):
 	
@@ -35,7 +37,7 @@ func _building_request_completed(a, b, c, result_body : PackedByteArray):
 	json.parse(result_body.get_string_from_utf8())
 	var response = json.get_data()
 	
-	print(response)
+	#print(response)
 	var response_body = response["results"]["bindings"]
 	
 	# One object:
@@ -47,9 +49,10 @@ func _building_request_completed(a, b, c, result_body : PackedByteArray):
 # 		 "placeLabel": { "xml:lang": "en", "type": "literal", "value": "Dura-Europos" } }
 	
 	for image in response_body:
-		associated_pics.append(image["object"]["value"])
-		pics_urls[image["object"]["value"]] = image["image"]["value"]
-		add_item(image["objectLabel"]["value"])
+		if "image" in image:
+			associated_pics.append(image["object"]["value"])
+			pics_urls[image["object"]["value"]] = image["image"]["value"]
+			$ItemList.add_item(image["objectLabel"]["value"])
 
 
 func _image_request_completed(a, b, c, result_body : PackedByteArray):
@@ -57,7 +60,7 @@ func _image_request_completed(a, b, c, result_body : PackedByteArray):
 	# this one should be just an image
 	var i = Image.new()
 	i.load_jpg_from_buffer(result_body)
-	#print(result_body)
+	print(result_body)
 	
 	($TextureRect.texture as ImageTexture).set_image(i)
 	
@@ -88,6 +91,7 @@ func _on_item_clicked(index: int, at_position: Vector2, mouse_button_index: int)
 		httpr.request_completed.disconnect(_building_request_completed)
 	httpr.request_completed.connect(_image_request_completed)
 	
+	print(url)
 	httpr.request(url)
 	
 	#pass # Replace with function body.

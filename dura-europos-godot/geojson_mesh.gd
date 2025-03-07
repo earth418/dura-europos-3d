@@ -136,7 +136,7 @@ func generate_geojson_mesh():
 			
 			locations.append(loc)
 			
-		print("Creating model with ", len(locations), " locations")
+		print("Creating model ", json_path, " with ", len(locations), " locations")
 		#var shape = $CollisionShape3D.shape as ConvexPolygonShape3D
 		#shape.points = []
 		#var collision_points = []
@@ -144,6 +144,9 @@ func generate_geojson_mesh():
 		var emin = Vector3(2000, 200.0, 2000)
 		var emax = Vector3(-2000.0, -200, -2000)
 		# var new_material = $cube.mesh.surface_get_material(0).duplicate()
+		
+		#if len(locations) == 377:
+			#print("This is ", json_path)
 		
 		for i in range(len(locations) - 1):
 			

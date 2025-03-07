@@ -17,6 +17,9 @@ class_name DE_Meshes extends Node3D
 
 var httpr = HTTPRequest.new()
 
+
+var geojson_scene = preload("res://geoJSON_mesh.tscn")
+
 #const get_buildings_query = """
 #SELECT ?item ?itemLabel ?value
 #{
@@ -38,14 +41,15 @@ func request_alL_buildings():
 	pass
 
 func create_object(filename : String):
-	var new_mesh : GeoJSON_Mesh = $geojson_mesh.duplicate()
-	$test.add_child(new_mesh)
+	var new_mesh : GeoJSON_Mesh = geojson_scene.instantiate()
 	new_mesh.json_path = filename
-	new_mesh.refresh = true
+	$test.add_child(new_mesh)
 	new_mesh.load_json_file(filename)
 	new_mesh.generate_geojson_mesh()
 
 func load_objects():
+	#print("load objs called")
+	
 	var generated_ids = {}
 	var geojson_dir = DirAccess.open("res://assets/geojsons")
 	if geojson_dir:
@@ -53,6 +57,7 @@ func load_objects():
 		var json_filename = geojson_dir.get_next()
 		while json_filename != "":
 			var building_id = json_filename.split(".")[0]
+			#print("building id", building_id)
 			if building_id in generated_ids:
 				json_filename = geojson_dir.get_next()
 				print("repeated " + building_id + "!")

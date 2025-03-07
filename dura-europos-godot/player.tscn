@@ -23,9 +23,13 @@ debug_shape_thickness = 5
 
 [node name="Control" type="Control" parent="Camera3D"]
 layout_mode = 3
-anchors_preset = 0
-offset_right = 1152.0
-offset_bottom = 648.0
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
 
 [node name="TextEdit" type="TextEdit" parent="Camera3D/Control"]
 visible = false
@@ -37,11 +41,13 @@ offset_bottom = 220.0
 editable = false
 
 [node name="RichTextLabel" type="RichTextLabel" parent="Camera3D/Control"]
-layout_mode = 0
-offset_left = 29.0
-offset_top = 16.0
-offset_right = 648.0
-offset_bottom = 103.0
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -331.0
+offset_bottom = 87.0
+grow_horizontal = 0
 theme = SubResource("Theme_a5i7w")
 
 [node name="TextureRect" type="TextureRect" parent="Camera3D/Control"]
@@ -51,6 +57,7 @@ offset_left = 53.0
 offset_top = 255.0
 offset_right = 604.0
 offset_bottom = 606.0
+expand_mode = 5
 
 [node name="Button" type="Button" parent="Camera3D/Control"]
 layout_mode = 0
@@ -60,26 +67,39 @@ offset_right = 273.0
 offset_bottom = 163.0
 text = "Click here to focus on object"
 
-[node name="WikiGallery" type="ItemList" parent="Camera3D/Control"]
-layout_mode = 0
-offset_left = 7.0
-offset_top = 296.0
-offset_right = 1135.0
-offset_bottom = 613.0
-max_text_lines = 3
-auto_height = true
-max_columns = 10
-same_column_width = true
+[node name="WikiGallery" type="Control" parent="Camera3D/Control"]
+layout_mode = 1
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -360.0
+grow_horizontal = 2
+grow_vertical = 0
 script = ExtResource("3_wjey4")
 
 [node name="TextureRect" type="TextureRect" parent="Camera3D/Control/WikiGallery"]
-layout_mode = 0
-offset_left = 703.0
-offset_top = 5.0
-offset_right = 1122.0
-offset_bottom = 312.0
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -429.0
+offset_top = -334.0
+grow_horizontal = 0
+grow_vertical = 0
 texture = SubResource("ImageTexture_0nox0")
 expand_mode = 3
 
+[node name="ItemList" type="ItemList" parent="Camera3D/Control/WikiGallery"]
+layout_mode = 1
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_top = -331.0
+offset_right = 723.0
+grow_vertical = 0
+
 [connection signal="pressed" from="Camera3D/Control/Button" to="." method="_on_focus_button_pressed"]
-[connection signal="item_clicked" from="Camera3D/Control/WikiGallery" to="Camera3D/Control/WikiGallery" method="_on_item_clicked"]
+[connection signal="item_clicked" from="Camera3D/Control/WikiGallery/ItemList" to="Camera3D/Control/WikiGallery" method="_on_item_clicked"]

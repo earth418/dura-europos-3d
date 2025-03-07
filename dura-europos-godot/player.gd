@@ -117,6 +117,7 @@ func _on_focus_button_pressed() -> void:
 		return
 	
 	if selecting:
+		$Camera3D/Control/WikiGallery/ItemList.clear()
 		focus_on_object(selected_object)
 	else:
 		defocus_on_object(selected_object)
