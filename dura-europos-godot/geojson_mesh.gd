@@ -40,6 +40,7 @@ func load_json_file(json_filepath):
 		for temp_obj in $test.get_children(true):
 			$test.remove_child(temp_obj)
 		spawned_meshes = []
+		$CollisionShape3D.shape = null
 		clear = false
 
 @export var debug_height = false
@@ -88,6 +89,9 @@ func generate_geojson_mesh():
 
 	if "data" not in geojson:
 		return
+		
+	if $CollisionShape3D.shape == null:
+		$CollisionShape3D.shape = CylinderShape3D.new()
 	
 	for feature in geojson["data"]["features"]:
 		#var feature_name = feature["properties"]["id"]
@@ -139,7 +143,7 @@ func generate_geojson_mesh():
 		print("Creating model ", json_path, " with ", len(locations), " locations")
 		#var shape = $CollisionShape3D.shape as ConvexPolygonShape3D
 		#shape.points = []
-		#var collision_points = []
+		var collision_points = []
 		#var minxz_maxxz = [2000, 2000, -2000, -2000]
 		var emin = Vector3(2000, 200.0, 2000)
 		var emax = Vector3(-2000.0, -200, -2000)
@@ -147,6 +151,8 @@ func generate_geojson_mesh():
 		
 		#if len(locations) == 377:
 			#print("This is ", json_path)
+		
+		var avg = Vector3(0.0, 0.0, 0.0)
 		
 		for i in range(len(locations) - 1):
 			
@@ -157,12 +163,19 @@ func generate_geojson_mesh():
 			var yaw = atan2(difference.z, difference.x)
 			var xscale = difference.length()
 			var height_scale = max(10.0, 1.5 * abs(loc1.y - loc2.y))
+			avg += loc1
 			
 			emin = emin.min(loc1)
 			emax = emax.max(loc1)
 				
-			#collision_points.append(loc1)
-			#collision_points.append(loc1 + Vector3(0, height_scale, 0))
+			collision_points.append(loc1)
+			#collision_points.append(loc2 + Vector3(0, height_scale, 0))
+			
+			# var new_collision = $CollisionShape3D.duplicate()
+			# add_child(new_collision)
+			# (new_collision.shape as BoxShape3D).size = Vector3(xscale, height_scale, 1.0)
+			# new_collision.global_position = (loc1 + loc2) / 2 + Vector3(0, height_scale, 0)
+			# new_collision.quaternion = Quaternion(Vector3.UP, -yaw)
 			
 			var new_cube : MeshInstance3D = $cube.duplicate()
 			$test.add_child(new_cube)
@@ -175,10 +188,23 @@ func generate_geojson_mesh():
 			new_cube.quaternion = Quaternion(Vector3.UP, -yaw)
 			
 		
-		($CollisionShape3D.shape as BoxShape3D).size = (emax - emin) * 2
-		$CollisionShape3D.global_position = (emax + emin) / 2 
+		avg /= len(locations)
+		#($CollisionShape3D.shape as BoxShape3D).size = (emax - emin)
+		#$CollisionShape3D.global_position = (emax + emin) / 2 
+		
+		($CollisionShape3D.shape as CylinderShape3D).radius = (emax - emin).length() / 2
+		($CollisionShape3D.shape as CylinderShape3D).height = 50
+		
+		$CollisionShape3D.global_position = (emax + emin) / 2
+		
+
 		mesh_location = (emax + emin) / 2
-		#($CollisionShape3D.shape as ConcavePolygonShape3D).points = collision_points
+		#var shape : ConvexPolygonShape3D = $CollisionShape3D.shape as ConvexPolygonShape3D
+		#if shape == null:
+			#shape = ConcavePolygonShape3D.new()
+			#$CollisionShape3D.shape = shape
+		#print(shape.points)
+		#shape.points = collision_points
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:

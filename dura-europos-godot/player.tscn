@@ -60,6 +60,7 @@ offset_bottom = 606.0
 expand_mode = 5
 
 [node name="Button" type="Button" parent="Camera3D/Control"]
+visible = false
 layout_mode = 0
 offset_left = 11.0
 offset_top = 11.0

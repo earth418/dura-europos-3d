@@ -30,6 +30,12 @@ func _process(delta: float) -> void:
 	if new_obj and new_obj != selected_object:
 		new_obj.material = highlight_mat
 	last_looked_at = new_obj
+	
+	var v = get_viewport()
+	var id = v.get_texture()
+	#id.viewport_path
+	#var id = RenderingServer.viewport_get_render_target(v)
+	print(id)
 
 
 func display_info_for_object(obj):
@@ -56,7 +62,7 @@ func un_display_object(obj):
 func _input(event):
 
 	# My code!!!
-	if event.is_action_pressed("click"):
+	if event.is_action_pressed("left-click"):
 		if Input.mouse_mode == Input.MOUSE_MODE_VISIBLE:
 			Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 			return
@@ -81,6 +87,16 @@ func _input(event):
 			
 		selected_object = new_obj
 
+	if event.is_action_pressed("right-click"):
+		
+		if not selecting:
+			return
+		
+		if selected_object:
+			#print(selected_object.json_path)
+			un_display_object(selected_object)
+			selected_object.material = white_mat
+
 	#if event.is_action_pressed("shift-click"):
 		#selected_objects.append(get_pointed_object())
 		#for object in selected_objects:
@@ -91,6 +107,8 @@ func _input(event):
 			#else:
 				#print(object)
 	
+	if event.is_action_pressed("focus"):
+		_on_focus_button_pressed()
 
 	if event.is_action_pressed("ui_cancel"):
 		Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
@@ -103,14 +121,15 @@ func focus_on_object(obj):
 	$Camera3D.anchor_transform = Transform3D(Basis(), obj.mesh_location)
 	$Camera3D/Control/Button.text = "Click here to stop focusing on object"
 	
+	#$Camera3D/Control/WikiGallery.visible = true
 	var id = obj.json_path.split("/")[-1].split(".")[0]
 	$Camera3D/Control/WikiGallery.get_pics_depicting_building(id)
-	
-	
+
+
 func defocus_on_object(obj):
+	
 	$Camera3D/Control/Button.text = "Click here to focus on object"
 	$Camera3D.camera_type = FreeLookOrbitCamera.CameraType.FREELOOK
-	#pass
 
 func _on_focus_button_pressed() -> void:
 	if not selected_object:
@@ -121,7 +140,6 @@ func _on_focus_button_pressed() -> void:
 		focus_on_object(selected_object)
 	else:
 		defocus_on_object(selected_object)
-	
 	
 	#$Camera3D/Control/Button.text = "Click here to stop focusing on 
 		#object" if selecting else "Click here to focus on object"

@@ -1,13 +1,10 @@
-[gd_scene load_steps=5 format=3 uid="uid://his6syakuyim"]
+[gd_scene load_steps=4 format=3 uid="uid://his6syakuyim"]
 
 [ext_resource type="Script" path="res://geojson_mesh.gd" id="1_myju2"]
 [ext_resource type="Material" uid="uid://bfldl4fhspfuj" path="res://white_standard_mat.tres" id="2_mfvhh"]
 
 [sub_resource type="BoxMesh" id="BoxMesh_nkt3r"]
 material = ExtResource("2_mfvhh")
-
-[sub_resource type="BoxShape3D" id="BoxShape3D_qdq4j"]
-size = Vector3(57.0934, 46.0729, 60.9066)
 
 [node name="GeoJSON_Mesh" type="Area3D"]
 script = ExtResource("1_myju2")
@@ -20,4 +17,4 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 0.830558, 0, 0, 0)
 mesh = SubResource("BoxMesh_nkt3r")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="."]
-shape = SubResource("BoxShape3D_qdq4j")
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -138.515, 215.955, 15.6784)
