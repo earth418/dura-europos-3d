@@ -1,6 +1,6 @@
 [gd_resource type="StandardMaterial3D" load_steps=2 format=3 uid="uid://bqfbrfoc1p1x5"]
 
-[ext_resource type="Material" uid="uid://ddrv5bfbsvg0p" path="res://outline_shader.tres" id="1_mlqx1"]
+[ext_resource type="Material" uid="uid://ddrv5bfbsvg0p" path="res://materials/outline_shader.tres" id="1_mlqx1"]
 
 [resource]
 next_pass = ExtResource("1_mlqx1")

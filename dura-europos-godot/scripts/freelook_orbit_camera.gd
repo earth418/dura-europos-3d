@@ -1,7 +1,7 @@
 class_name FreeLookOrbitCamera extends Camera3D
 
 enum CameraType {FREELOOK, ORBIT}
-var camera_type : CameraType = CameraType.FREELOOK
+@export var camera_type : CameraType = CameraType.FREELOOK
 
 # NOT MY CODE
 # GOTTEN FROM 
@@ -76,6 +76,8 @@ func _ready() -> void:
 	#_rotation = _anchor_node.transform.basis.get_rotation_quaternion().get_euler()
 	#_rotation = anchor_transform.basis.get_rotation_quaternion().get_euler()
 
+func set_distance(new_distance):
+	_distance = new_distance
 
 func _input(event):
 	if event is InputEventMouseMotion:

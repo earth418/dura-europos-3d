@@ -1,0 +1,151 @@
+[gd_scene load_steps=8 format=3 uid="uid://bgwkiepd3vs8c"]
+
+[ext_resource type="Script" path="res://scripts/player.gd" id="1_cu3ye"]
+[ext_resource type="Script" path="res://scripts/freelook_orbit_camera.gd" id="2_fkgpm"]
+[ext_resource type="Script" path="res://scripts/picture_gallery.gd" id="3_wjey4"]
+
+[sub_resource type="Theme" id="Theme_a5i7w"]
+default_font_size = 50
+
+[sub_resource type="ImageTexture" id="ImageTexture_0nox0"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ms15b"]
+bg_color = Color(0.84084, 0.899083, 0.86935, 0.156863)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_0cxdm"]
+bg_color = Color(0.715189, 0.847937, 0.811766, 1)
+border_width_left = 8
+border_width_top = 8
+border_width_right = 8
+border_width_bottom = 8
+border_blend = true
+
+[node name="Player" type="Node3D"]
+script = ExtResource("1_cu3ye")
+
+[node name="Camera3D" type="Camera3D" parent="."]
+script = ExtResource("2_fkgpm")
+
+[node name="RayCast3D" type="RayCast3D" parent="Camera3D"]
+target_position = Vector3(0, 0, -500)
+collide_with_areas = true
+debug_shape_custom_color = Color(0.992157, 0.137255, 0.992157, 1)
+debug_shape_thickness = 5
+
+[node name="Control" type="Control" parent="Camera3D"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="Instructions" type="RichTextLabel" parent="Camera3D/Control"]
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -331.0
+offset_bottom = 87.0
+grow_horizontal = 0
+theme = SubResource("Theme_a5i7w")
+
+[node name="TextEdit" type="TextEdit" parent="Camera3D/Control"]
+visible = false
+layout_mode = 0
+offset_left = 54.0
+offset_top = 109.0
+offset_right = 638.0
+offset_bottom = 220.0
+editable = false
+
+[node name="TextureRect" type="TextureRect" parent="Camera3D/Control"]
+visible = false
+layout_mode = 0
+offset_left = 53.0
+offset_top = 255.0
+offset_right = 604.0
+offset_bottom = 606.0
+expand_mode = 5
+
+[node name="FocusedInfo" type="Control" parent="Camera3D/Control"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="WikiGallery" type="Control" parent="Camera3D/Control/FocusedInfo"]
+layout_mode = 1
+anchor_top = 0.556
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -0.480042
+grow_horizontal = 2
+grow_vertical = 0
+script = ExtResource("3_wjey4")
+
+[node name="TextureRect" type="TextureRect" parent="Camera3D/Control/FocusedInfo/WikiGallery"]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.667
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -0.640137
+grow_horizontal = 0
+grow_vertical = 0
+texture = SubResource("ImageTexture_0nox0")
+expand_mode = 3
+
+[node name="ItemList" type="ItemList" parent="Camera3D/Control/FocusedInfo/WikiGallery"]
+layout_mode = 1
+anchors_preset = -1
+anchor_right = 0.417
+anchor_bottom = 1.0
+offset_right = -0.640076
+grow_vertical = 0
+theme_override_styles/panel = SubResource("StyleBoxFlat_ms15b")
+
+[node name="RichTextLabel" type="RichTextLabel" parent="Camera3D/Control/FocusedInfo/WikiGallery"]
+visible = false
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.417
+anchor_right = 0.667
+anchor_bottom = 1.0
+offset_left = -0.640076
+offset_right = -0.640137
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_font_sizes/normal_font_size = 24
+theme_override_styles/background = SubResource("StyleBoxFlat_0cxdm")
+text = "English
+Picture title: Wall0046 Baptistery, Christian house church
+Picture description: wall portion on the east-facing exterior side of the baptismal font from the Baptistery, Christian House Chruch, Dura-Europos
+العربية
+عنوان الصورة: حيطة 46 معمودية, كنيسة-بيت المسيجي
+وصف الصورة: جزء من الحيطة على الجانب الشرقي الخارجي من المعمودية "
+fit_content = true
+
+[node name="instruction" type="RichTextLabel" parent="Camera3D/Control/FocusedInfo"]
+layout_mode = 1
+offset_right = 360.0
+offset_bottom = 360.0
+theme = SubResource("Theme_a5i7w")
+theme_override_font_sizes/normal_font_size = 18
+text = "Press F while building is clicked to focus
+Press G while image clicked to edit UV
+Right click to deselect"
+
+[node name="RichTextLabel" type="RichTextLabel" parent="Camera3D/Control/FocusedInfo"]
+layout_mode = 0
+offset_left = 1455.0
+offset_top = 7.0
+offset_right = 1924.0
+offset_bottom = 118.0
+theme_override_font_sizes/normal_font_size = 20
+
+[connection signal="item_clicked" from="Camera3D/Control/FocusedInfo/WikiGallery/ItemList" to="Camera3D/Control/FocusedInfo/WikiGallery" method="_on_item_clicked"]

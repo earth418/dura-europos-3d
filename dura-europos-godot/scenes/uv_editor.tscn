@@ -1,0 +1,42 @@
+[gd_scene load_steps=4 format=3 uid="uid://8j6rvxik0whd"]
+
+[ext_resource type="Script" path="res://scripts/freelook_orbit_camera.gd" id="1_2jkw0"]
+[ext_resource type="Script" path="res://scenes/uv_editor.gd" id="1_mnf3n"]
+
+[sub_resource type="ImageTexture" id="ImageTexture_1uohn"]
+
+[node name="Window" type="Window"]
+title = "UV editor"
+size = Vector2i(600, 400)
+script = ExtResource("1_mnf3n")
+
+[node name="FreeLookOrbitCamera" type="Camera3D" parent="."]
+visible = false
+script = ExtResource("1_2jkw0")
+camera_type = 1
+
+[node name="Control" type="Control" parent="FreeLookOrbitCamera"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="TextureRect" type="TextureRect" parent="FreeLookOrbitCamera/Control"]
+layout_mode = 1
+anchors_preset = 11
+anchor_left = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = nan
+offset_right = nan
+offset_bottom = -400.0
+grow_horizontal = 0
+grow_vertical = 2
+texture = SubResource("ImageTexture_1uohn")
+expand_mode = 3
+
+[node name="Node3D" type="Node3D" parent="."]
+
+[connection signal="close_requested" from="." to="." method="_on_close_requested"]

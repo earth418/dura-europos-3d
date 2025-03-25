@@ -9,7 +9,7 @@ var mesh_location : Vector3
 @onready var mesh_parent : Node3D = $test
 var spawned_meshes : Array[MeshInstance3D] = []
 
-var material : Material = preload("res://white_standard_mat.tres"):
+var material : Material = preload("res://materials/white_standard_mat.tres"):
 	set(new_material):
 		for temp_obj in $test.get_children(true):
 			(temp_obj as MeshInstance3D).set_surface_override_material(0, new_material)

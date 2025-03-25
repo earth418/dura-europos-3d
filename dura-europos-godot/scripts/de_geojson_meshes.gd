@@ -18,7 +18,7 @@ class_name DE_Meshes extends Node3D
 var httpr = HTTPRequest.new()
 
 
-var geojson_scene = preload("res://geoJSON_mesh.tscn")
+var geojson_scene = preload("res://scenes/geoJSON_mesh.tscn")
 
 #const get_buildings_query = """
 #SELECT ?item ?itemLabel ?value

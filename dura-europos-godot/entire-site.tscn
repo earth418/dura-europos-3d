@@ -1,14 +1,14 @@
 [gd_scene load_steps=20 format=4 uid="uid://b8bghg0eiplvr"]
 
-[ext_resource type="PackedScene" uid="uid://his6syakuyim" path="res://geoJSON_mesh.tscn" id="1_e5equ"]
-[ext_resource type="Material" uid="uid://ddrv5bfbsvg0p" path="res://outline_shader.tres" id="1_oc6f0"]
+[ext_resource type="PackedScene" uid="uid://his6syakuyim" path="res://scenes/geoJSON_mesh.tscn" id="1_e5equ"]
+[ext_resource type="Material" uid="uid://ddrv5bfbsvg0p" path="res://materials/outline_shader.tres" id="1_oc6f0"]
 [ext_resource type="ArrayMesh" uid="uid://dpyy83e2wn5ry" path="res://assets/ground_mesh.res" id="1_uf2ue"]
-[ext_resource type="Script" path="res://heightmap_visualizer.gd" id="2_0xlqj"]
-[ext_resource type="Shader" uid="uid://jp6b0u21fv2d" path="res://test.tres" id="3_uaxmh"]
+[ext_resource type="Script" path="res://scripts/heightmap_visualizer.gd" id="2_0xlqj"]
+[ext_resource type="Shader" uid="uid://jp6b0u21fv2d" path="res://materials/test.tres" id="3_uaxmh"]
 [ext_resource type="Image" uid="uid://bqcvqstdhryr2" path="res://assets/heightmap.png" id="3_xctb6"]
-[ext_resource type="Material" uid="uid://cldxa4r2wrpqr" path="res://new_standard_material_3d.tres" id="4_hisut"]
-[ext_resource type="Script" path="res://de_geojson_meshes.gd" id="6_17bpj"]
-[ext_resource type="PackedScene" uid="uid://bgwkiepd3vs8c" path="res://player.tscn" id="8_wi7pd"]
+[ext_resource type="Material" uid="uid://cldxa4r2wrpqr" path="res://materials/new_standard_material_3d.tres" id="4_hisut"]
+[ext_resource type="Script" path="res://scripts/de_geojson_meshes.gd" id="6_17bpj"]
+[ext_resource type="PackedScene" uid="uid://bgwkiepd3vs8c" path="res://scenes/player.tscn" id="8_wi7pd"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_5mal1"]
 

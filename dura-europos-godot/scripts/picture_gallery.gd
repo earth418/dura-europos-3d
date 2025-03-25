@@ -4,6 +4,9 @@ var associated_pics = []
 var pics_urls = {}
 var httpr : HTTPRequest 
 
+var loaded_picture : Image
+var loaded_picture_info = {}
+
 @export var building_id : String = "":
 	set(new_id):
 		#if httpr:
@@ -60,8 +63,9 @@ func _image_request_completed(a, b, c, result_body : PackedByteArray):
 	# this one should be just an image
 	var i = Image.new()
 	i.load_jpg_from_buffer(result_body)
-	print(result_body)
+	#print(result_body)
 	
+	loaded_picture = i
 	($TextureRect.texture as ImageTexture).set_image(i)
 	
 
@@ -92,6 +96,7 @@ func _on_item_clicked(index: int, at_position: Vector2, mouse_button_index: int)
 	httpr.request_completed.connect(_image_request_completed)
 	
 	print(url)
+	loaded_picture_info = associated_pics[index]
 	httpr.request(url)
 	
 	#pass # Replace with function body.
