@@ -4,7 +4,8 @@ var _object : GeoJSON_Mesh
 var _picture : Image
 var _pic_info 
 
-@onready var texture_rect : TextureRect = $FreeLookOrbitCamera/Control/TextureRect
+@onready var texture_rect : TextureRect = $Control2/TextureRect
+@onready var sub_viewport : SubViewport = $Control2/SubViewportContainer/SubViewport
 
 const window_resource = preload("res://scenes/uv_editor.tscn")
 
@@ -21,14 +22,25 @@ static func create_editor(object, picture, pic_info):
 func _ready() -> void:
 	popup_centered_ratio(0.5)
 	grab_focus()
-	$Node3D.position = Vector3(0, 5000.0, 0)
-	$FreeLookOrbitCamera.anchor_transform = Transform3D(Basis(), Vector3(0, 5000.0, 0))
-	add_child(_object.duplicate())
+	var pos = Vector3(0, 5000.0, 0)
+	$Control2/SubViewportContainer/SubViewport/Node3D.position = pos
+	$Control2/SubViewportContainer/SubViewport/FreeLookOrbitCamera.anchor_transform = Transform3D(Basis(), pos)
+	var new_obj : GeoJSON_Mesh = _object.duplicate()
+	add_child(new_obj)
+	new_obj.global_position = pos
 	print(_object)
 	print(_object.json_path)
 	(texture_rect.texture as ImageTexture).set_image(_picture)
 	#pass # Replace with function body.
 
+func _input(event: InputEvent) -> void:
+	
+	if event.is_action_pressed("escape"):
+		close_requested.emit()
+	
+	if event.is_action_pressed("adduv"):
+		
+		pass
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta: float) -> void:

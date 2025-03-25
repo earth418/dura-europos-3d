@@ -107,6 +107,7 @@ anchor_right = 0.417
 anchor_bottom = 1.0
 offset_right = -0.640076
 grow_vertical = 0
+theme_override_colors/font_color = Color(0, 0, 0, 1)
 theme_override_styles/panel = SubResource("StyleBoxFlat_ms15b")
 
 [node name="RichTextLabel" type="RichTextLabel" parent="Camera3D/Control/FocusedInfo/WikiGallery"]
