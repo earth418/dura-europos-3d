@@ -1,6 +1,6 @@
 [gd_scene load_steps=4 format=3 uid="uid://his6syakuyim"]
 
-[ext_resource type="Script" path="res://scripts/geojson_mesh.gd" id="1_dymuj"]
+[ext_resource type="Script" uid="uid://5xymt2yhv0ir" path="res://scripts/geojson_mesh.gd" id="1_dymuj"]
 [ext_resource type="Material" uid="uid://bfldl4fhspfuj" path="res://materials/white_standard_mat.tres" id="2_ksk5i"]
 
 [sub_resource type="BoxMesh" id="BoxMesh_nkt3r"]

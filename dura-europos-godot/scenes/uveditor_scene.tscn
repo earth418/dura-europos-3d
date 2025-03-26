@@ -1,7 +1,7 @@
 [gd_scene load_steps=7 format=3 uid="uid://5oublp10f2kf"]
 
-[ext_resource type="Script" path="res://scripts/freelook_orbit_camera.gd" id="1_pp1h4"]
-[ext_resource type="Script" path="res://scenes/uv_edtiing.gd" id="2_mml1y"]
+[ext_resource type="Script" uid="uid://bqim8t2aait7r" path="res://scripts/freelook_orbit_camera.gd" id="1_pp1h4"]
+[ext_resource type="Script" uid="uid://cvnvmfn542kch" path="res://scenes/uv_edtiing.gd" id="2_mml1y"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_v8rlc"]
 sky_horizon_color = Color(0.64625, 0.65575, 0.67075, 1)

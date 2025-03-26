@@ -63,6 +63,10 @@ func _ready() -> void:
 		texture_rect.texture = load("res://assets/satellite_color_square.png")
 	#pass # Replace with function body.
 
+
+var waiting_for_texclick = false
+var waiting_for_viewport = false
+
 func _input(event: InputEvent) -> void:
 	
 	if event.is_action_pressed("escape"):
@@ -70,7 +74,7 @@ func _input(event: InputEvent) -> void:
 	
 	if event.is_action_pressed("adduv"):
 		
-		
+		waiting_for_texclick = true
 		
 		pass
 
@@ -82,3 +86,21 @@ func _process(delta: float) -> void:
 func _on_close_requested() -> void:
 	hide()
 	
+
+
+func _on_texture_input(event: InputEvent) -> void:
+	if event.is_action("left-click"):
+		if waiting_for_texclick:
+			
+			var i = get_mouse_position()
+			var base = $Control2/TextureRect.position
+			var uv = (i - base) / $Control2/TextureRect.size
+			print(uv)
+
+
+func _on_viewport_container_input(event: InputEvent) -> void:
+	
+	#var root = $Control2/SubViewportContainer/SubViewport/Node3D
+	#var camera = root.get_node("FreeLookCamera")
+	
+	pass # Replace with function body.
