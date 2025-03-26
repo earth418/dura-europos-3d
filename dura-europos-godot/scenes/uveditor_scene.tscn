@@ -1,0 +1,92 @@
+[gd_scene load_steps=7 format=3 uid="uid://5oublp10f2kf"]
+
+[ext_resource type="Script" path="res://scripts/freelook_orbit_camera.gd" id="1_pp1h4"]
+[ext_resource type="Script" path="res://scenes/uv_edtiing.gd" id="2_mml1y"]
+
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_v8rlc"]
+sky_horizon_color = Color(0.64625, 0.65575, 0.67075, 1)
+ground_horizon_color = Color(0.64625, 0.65575, 0.67075, 1)
+
+[sub_resource type="Sky" id="Sky_o62uu"]
+sky_material = SubResource("ProceduralSkyMaterial_v8rlc")
+
+[sub_resource type="Environment" id="Environment_umvon"]
+background_mode = 2
+sky = SubResource("Sky_o62uu")
+tonemap_mode = 2
+glow_enabled = true
+
+[sub_resource type="PlaneMesh" id="PlaneMesh_b2c3b"]
+size = Vector2(100, 100)
+
+[node name="Node3D" type="Node3D"]
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_umvon")
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+transform = Transform3D(-0.866023, -0.0988296, 0.490139, 0, 0.980271, 0.197658, -0.500003, 0.171176, -0.848938, 0, 0, 0)
+shadow_enabled = true
+
+[node name="FreeLookOrbitCamera" type="Camera3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 4, 4)
+script = ExtResource("1_pp1h4")
+camera_type = 1
+
+[node name="Control" type="Control" parent="FreeLookOrbitCamera"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("2_mml1y")
+
+[node name="ItemList" type="ItemList" parent="FreeLookOrbitCamera/Control"]
+layout_mode = 1
+anchors_preset = -1
+anchor_top = 0.75
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+max_columns = 6
+fixed_column_width = 100
+
+[node name="RichTextLabel" type="RichTextLabel" parent="FreeLookOrbitCamera/Control"]
+layout_mode = 1
+anchors_preset = -1
+anchor_top = 0.65
+anchor_right = 0.25
+anchor_bottom = 0.75
+offset_top = -0.360046
+offset_right = 0.599976
+offset_bottom = -6.10352e-05
+theme_override_font_sizes/normal_font_size = 24
+text = "UV points"
+
+[node name="cursor" type="ColorRect" parent="FreeLookOrbitCamera/Control"]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -5.0
+offset_top = -5.0
+offset_right = 5.0
+offset_bottom = 5.0
+grow_vertical = 2
+
+[node name="RichTextLabel2" type="RichTextLabel" parent="FreeLookOrbitCamera/Control"]
+layout_mode = 1
+anchors_preset = -1
+anchor_right = 0.5
+anchor_bottom = 0.25
+offset_right = 0.47998
+offset_bottom = -0.400009
+theme_override_font_sizes/normal_font_size = 20
+text = "Press T to add a new UV point at the mouse UV on the picture"
+
+[node name="ground" type="MeshInstance3D" parent="."]
+mesh = SubResource("PlaneMesh_b2c3b")

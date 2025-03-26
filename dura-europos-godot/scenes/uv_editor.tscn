@@ -1,7 +1,7 @@
 [gd_scene load_steps=4 format=3 uid="uid://8j6rvxik0whd"]
 
-[ext_resource type="Script" path="res://scripts/freelook_orbit_camera.gd" id="1_2jkw0"]
-[ext_resource type="Script" path="res://scenes/uv_editor.gd" id="1_mnf3n"]
+[ext_resource type="Script" path="res://scripts/uv_editor.gd" id="1_mnf3n"]
+[ext_resource type="PackedScene" uid="uid://5oublp10f2kf" path="res://scenes/uveditor_scene.tscn" id="2_ebs50"]
 
 [sub_resource type="ImageTexture" id="ImageTexture_uqypi"]
 
@@ -22,6 +22,7 @@ grow_horizontal = 2
 grow_vertical = 2
 
 [node name="SubViewportContainer" type="SubViewportContainer" parent="Control2"]
+clip_contents = true
 layout_mode = 1
 anchors_preset = -1
 anchor_right = 0.5
@@ -30,69 +31,10 @@ grow_vertical = 2
 
 [node name="SubViewport" type="SubViewport" parent="Control2/SubViewportContainer"]
 handle_input_locally = false
-size = Vector2i(960, 540)
+size = Vector2i(960, 1080)
 render_target_update_mode = 4
 
-[node name="FreeLookOrbitCamera" type="Camera3D" parent="Control2/SubViewportContainer/SubViewport"]
-visible = false
-script = ExtResource("1_2jkw0")
-camera_type = 1
-
-[node name="Control" type="Control" parent="Control2/SubViewportContainer/SubViewport/FreeLookOrbitCamera"]
-layout_mode = 3
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-
-[node name="ItemList" type="ItemList" parent="Control2/SubViewportContainer/SubViewport/FreeLookOrbitCamera/Control"]
-layout_mode = 1
-anchors_preset = -1
-anchor_top = 0.75
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-max_columns = 6
-fixed_column_width = 100
-
-[node name="RichTextLabel" type="RichTextLabel" parent="Control2/SubViewportContainer/SubViewport/FreeLookOrbitCamera/Control"]
-layout_mode = 1
-anchors_preset = -1
-anchor_top = 0.65
-anchor_right = 0.25
-anchor_bottom = 0.75
-offset_top = -0.360046
-offset_right = 0.599976
-offset_bottom = -6.10352e-05
-theme_override_font_sizes/normal_font_size = 36
-text = "UV points"
-
-[node name="cursor" type="ColorRect" parent="Control2/SubViewportContainer/SubViewport/FreeLookOrbitCamera/Control"]
-layout_mode = 1
-anchors_preset = -1
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -5.0
-offset_top = -5.0
-offset_right = 5.0
-offset_bottom = 5.0
-grow_vertical = 2
-
-[node name="RichTextLabel2" type="RichTextLabel" parent="Control2/SubViewportContainer/SubViewport/FreeLookOrbitCamera/Control"]
-layout_mode = 1
-anchors_preset = -1
-anchor_right = 0.5
-anchor_bottom = 0.25
-offset_right = 0.47998
-offset_bottom = -0.400009
-theme_override_font_sizes/normal_font_size = 20
-text = "Press T to add a new UV point at the mouse UV on the picture"
-
-[node name="Node3D" type="Node3D" parent="Control2/SubViewportContainer/SubViewport"]
+[node name="Node3D" parent="Control2/SubViewportContainer/SubViewport" instance=ExtResource("2_ebs50")]
 
 [node name="TextureRect" type="TextureRect" parent="Control2"]
 layout_mode = 1
@@ -103,5 +45,11 @@ anchor_bottom = 1.0
 grow_horizontal = 0
 grow_vertical = 2
 texture = SubResource("ImageTexture_uqypi")
+
+[node name="Label" type="Label" parent="Control2"]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 23.0
+text = "Click on the picture to get "
 
 [connection signal="close_requested" from="." to="." method="_on_close_requested"]

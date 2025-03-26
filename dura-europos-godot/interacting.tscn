@@ -83,8 +83,6 @@ offset_bottom = -0.400009
 theme_override_font_sizes/normal_font_size = 20
 text = "Press T to add a new UV point at the mouse UV on the picture"
 
-[node name="Node3D" type="Node3D" parent="SubViewportContainer/SubViewport"]
-
 [node name="TextureRect" type="TextureRect" parent="."]
 layout_mode = 1
 anchors_preset = -1

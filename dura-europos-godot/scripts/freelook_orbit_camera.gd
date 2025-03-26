@@ -25,7 +25,7 @@ const ALT_MULTIPLIER = 1.0 / SHIFT_MULTIPLIER
 @export var DEFAULT_DISTANCE: float = 100 # Default distance of the Node
 @export var ROTATE_SPEED: float = 1
 #@export var ANCHOR_NODE_PATH: NodePath
-var anchor_transform : Transform3D :
+var anchor_transform : Transform3D = Transform3D() :
 	set(new_transform):
 		_rotation = new_transform.basis.get_rotation_quaternion().get_euler()
 		anchor_transform = new_transform
@@ -121,6 +121,8 @@ func _input(event):
 
 # Updates mouselook and movement every frame
 func _process(delta):
+	#print(position)
+	
 	if camera_type == CameraType.FREELOOK:
 		_freelook_update_mouselook()
 		_freelook_update_movement(delta)
@@ -204,8 +206,10 @@ func _orbit_process_transformation(delta: float):
 	global_position = anchor_transform.origin + _distance * Vector3(x, y, z)
 	look_at(anchor_transform.origin)
 	
-	if global_position.y < 200:
-		global_position.y = 200
+	# if below the ground
+	#if global_position.y < 200:
+		#global_position.y = 200
+	
 	#self.set_identity()
 	#self.translate_object_local(Vector3(0,0,_distance))
 	#_anchor_node.set_identity()
