@@ -1,7 +1,8 @@
-[gd_scene load_steps=7 format=3 uid="uid://5oublp10f2kf"]
+[gd_scene load_steps=10 format=3 uid="uid://5oublp10f2kf"]
 
 [ext_resource type="Script" uid="uid://bqim8t2aait7r" path="res://scripts/freelook_orbit_camera.gd" id="1_pp1h4"]
 [ext_resource type="Script" uid="uid://cvnvmfn542kch" path="res://scenes/uv_edtiing.gd" id="2_mml1y"]
+[ext_resource type="Shader" uid="uid://38fb0hrncjqw" path="res://materials/gpu_depth.gdshader" id="3_tdpqq"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_v8rlc"]
 sky_horizon_color = Color(0.64625, 0.65575, 0.67075, 1)
@@ -15,6 +16,15 @@ background_mode = 2
 sky = SubResource("Sky_o62uu")
 tonemap_mode = 2
 glow_enabled = true
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_7wbwp"]
+render_priority = 0
+shader = ExtResource("3_tdpqq")
+shader_parameter/camera_far = 100000.0
+
+[sub_resource type="QuadMesh" id="QuadMesh_etjwj"]
+material = SubResource("ShaderMaterial_7wbwp")
+size = Vector2(0.1, 0.1)
 
 [sub_resource type="PlaneMesh" id="PlaneMesh_b2c3b"]
 size = Vector2(100, 100)
@@ -87,6 +97,12 @@ offset_right = 0.47998
 offset_bottom = -0.400009
 theme_override_font_sizes/normal_font_size = 20
 text = "Press T to add a new UV point at the mouse UV on the picture"
+
+[node name="depth_cam" type="Camera3D" parent="FreeLookOrbitCamera"]
+
+[node name="depth_plane" type="MeshInstance3D" parent="FreeLookOrbitCamera/depth_cam"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -0.08)
+mesh = SubResource("QuadMesh_etjwj")
 
 [node name="ground" type="MeshInstance3D" parent="."]
 mesh = SubResource("PlaneMesh_b2c3b")

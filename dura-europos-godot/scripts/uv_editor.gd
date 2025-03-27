@@ -64,8 +64,9 @@ func _ready() -> void:
 	#pass # Replace with function body.
 
 
-var waiting_for_texclick = false
-var waiting_for_viewport = false
+enum PickState {TEX, VIEWPORT, DONE}
+var state : PickState = PickState.DONE
+var uv : Vector2
 
 func _input(event: InputEvent) -> void:
 	
@@ -74,12 +75,17 @@ func _input(event: InputEvent) -> void:
 	
 	if event.is_action_pressed("adduv"):
 		
-		waiting_for_texclick = true
-		
+		state = PickState.TEX
 		pass
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta: float) -> void:
+	
+	var sub_vp = $Control2/SubViewportContainer/SubViewport
+	var vp_texture : ViewportTexture = sub_vp.get_texture()
+	texture_rect.texture = vp_texture
+	#var vp_image = vp_texture.get_image()
+	#(texture_rect.texture as ImageTexture).set_image(vp_image)
 	pass
 
 
@@ -90,17 +96,50 @@ func _on_close_requested() -> void:
 
 func _on_texture_input(event: InputEvent) -> void:
 	if event.is_action("left-click"):
-		if waiting_for_texclick:
+		if state == PickState.TEX:
 			
 			var i = get_mouse_position()
 			var base = $Control2/TextureRect.position
-			var uv = (i - base) / $Control2/TextureRect.size
+			uv = (i - base) / $Control2/TextureRect.size
 			print(uv)
+			state = PickState.VIEWPORT
 
 
 func _on_viewport_container_input(event: InputEvent) -> void:
 	
 	#var root = $Control2/SubViewportContainer/SubViewport/Node3D
 	#var camera = root.get_node("FreeLookCamera")
+	if event.is_action("left-click"):
+		if state == PickState.VIEWPORT:
+			
+			var sub_vp_container = $Control2/SubViewportContainer
+			var sub_vp = $Control2/SubViewportContainer/SubViewport
+			
+			# taken with help from https://github.com/bikemurt/godot-vertex-painter/blob/main/addons/vertex_painter/v2/vertex_painter_3d.gd
+			var mouse_loc = sub_vp_container.get_local_mouse_position()
+			var src_pos = camera.project_ray_origin(mouse_loc)
+			var cam_dir = camera.project_ray_normal(mouse_loc).normalized()
+			
+			
+			#sub_vp.render_target_update_mode = SubViewport.UPDATE_ONCE
+			var vp_texture : ViewportTexture = sub_vp.get_texture()
+			var vp_image = vp_texture.get_image()
+			
+			var depth = vp_image.get_pixel(0, 0).srgb_to_linear()
+			#var normalized_distance = Vector2(depth.r, depth.g).dot(Vector2(1, 1.0/255.0))
+			var normalized_distance = depth.r + depth.g / 255.0
+			
+			if normalized_distance > 0.9999:
+				normalized_distance = 1
+			elif normalized_distance < 0.0001:
+				normalized_distance = 0
+							   # origin + direction * (depth distance)
+			var clicked_point = src_pos + cam_dir * (normalized_distance * camera.far)
+			
+			apply_texture(uv, clicked_point)
 	
-	pass # Replace with function body.
+func apply_texture(uv, clicked_point):
+	
+	print("associating uv ", uv, " with 3d point ", clicked_point)
+	state = PickState.DONE
+	#pass
