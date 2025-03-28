@@ -1,0 +1,59 @@
+[gd_scene load_steps=4 format=3 uid="uid://8j6rvxik0whd"]
+
+[ext_resource type="Script" uid="uid://ckchf6jyf7jhr" path="res://scripts/uv_editor.gd" id="1_mnf3n"]
+[ext_resource type="PackedScene" uid="uid://5oublp10f2kf" path="res://scenes/uveditor_scene.tscn" id="2_ebs50"]
+
+[sub_resource type="ImageTexture" id="ImageTexture_uqypi"]
+
+[node name="Window" type="Window"]
+title = "UV editor"
+position = Vector2i(0, 36)
+size = Vector2i(1920, 1080)
+content_scale_mode = 1
+content_scale_aspect = 4
+script = ExtResource("1_mnf3n")
+
+[node name="Control2" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="SubViewportContainer" type="SubViewportContainer" parent="Control2"]
+clip_contents = true
+layout_mode = 1
+anchors_preset = -1
+anchor_right = 0.5
+anchor_bottom = 1.0
+grow_vertical = 2
+
+[node name="SubViewport" type="SubViewport" parent="Control2/SubViewportContainer"]
+handle_input_locally = false
+size = Vector2i(960, 1080)
+
+[node name="Node3D" parent="Control2/SubViewportContainer/SubViewport" instance=ExtResource("2_ebs50")]
+
+[node name="TextureRect" type="TextureRect" parent="Control2"]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.5
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 0
+grow_vertical = 2
+texture = SubResource("ImageTexture_uqypi")
+
+[node name="Label" type="Label" parent="Control2"]
+layout_mode = 0
+offset_left = 542.0
+offset_top = 118.0
+offset_right = 948.0
+offset_bottom = 167.0
+text = "Click on the picture to pick a corresponding UV point
+"
+
+[connection signal="close_requested" from="." to="." method="_on_close_requested"]
+[connection signal="gui_input" from="Control2/SubViewportContainer" to="." method="_on_viewport_container_input"]
+[connection signal="gui_input" from="Control2/TextureRect" to="." method="_on_texture_input"]

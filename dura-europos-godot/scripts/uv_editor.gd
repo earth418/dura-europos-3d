@@ -70,6 +70,11 @@ var uv : Vector2
 
 func _input(event: InputEvent) -> void:
 	
+	
+	if event.is_action_pressed("left-click"):
+		var x =get_mouse_point()
+		#print(x)
+		
 	if event.is_action_pressed("escape"):
 		close_requested.emit()
 	
@@ -80,13 +85,13 @@ func _input(event: InputEvent) -> void:
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta: float) -> void:
+	pass
 	
-	var sub_vp = $Control2/SubViewportContainer/SubViewport
-	var vp_texture : ViewportTexture = sub_vp.get_texture()
-	texture_rect.texture = vp_texture
+	#var sub_vp = $Control2/SubViewportContainer/SubViewport
+	#var vp_texture : ViewportTexture = sub_vp.get_texture()
+	#texture_rect.texture = vp_texture
 	#var vp_image = vp_texture.get_image()
 	#(texture_rect.texture as ImageTexture).set_image(vp_image)
-	pass
 
 
 func _on_close_requested() -> void:
@@ -99,44 +104,88 @@ func _on_texture_input(event: InputEvent) -> void:
 		if state == PickState.TEX:
 			
 			var i = get_mouse_position()
-			var base = $Control2/TextureRect.position
-			uv = (i - base) / $Control2/TextureRect.size
+			var base = texture_rect.position
+			uv = (i - base) / texture_rect.size
 			print(uv)
 			state = PickState.VIEWPORT
+			
 
+@onready var space: PhysicsDirectSpaceState3D = new_world.get_world_3d().direct_space_state
+
+func get_mouse_point():
+	
+	var mouse_loc = $Control2/SubViewportContainer.get_local_mouse_position()
+	
+	var from = camera.project_ray_origin(mouse_loc)
+	var to = from + camera.project_ray_normal(mouse_loc) * 1000.0
+	
+	var rayQuery := PhysicsRayQueryParameters3D.new()
+	rayQuery.from = from
+	rayQuery.to = to
+	
+	var result = space.intersect_ray(rayQuery)
+	
+	print(result)
+	var point = result["position"]
+	new_world.get_node("MeshInstance3D2").global_position = point
+	return point
+	#var sub_vp_container = $Control2/SubViewportContainer
+	#var sub_vp = camera.get_node("SubViewport")
+	#var depth_camera = sub_vp.get_node("depth_cam")
+	#
+	## taken with help from https://github.com/bikemurt/godot-vertex-painter/blob/main/addons/vertex_painter/v2/vertex_painter_3d.gd
+	#var mouse_loc = sub_vp_container.get_local_mouse_position()
+	##print(mouse_loc)
+	#
+	#var src_pos = camera.project_ray_origin(mouse_loc)
+	#var cam_dir = camera.project_ray_normal(mouse_loc).normalized()
+	#
+	##print(cam_dir)
+	#depth_camera.global_position = src_pos - cam_dir
+	#
+	#var point : Vector3
+	#if is_zero_approx((cam_dir - Vector3(0, -1, 0)).length_squared()):
+		#depth_camera.rotation_degrees = Vector3(-90.0, 0, 0)
+		#point = src_pos
+		##print(cam_dir)
+	#else:
+		#depth_camera.look_at(depth_camera.global_position + cam_dir, Vector3.UP)
+		#sub_vp.render_target_update_mode = SubViewport.UPDATE_ONCE
+		#var vp_texture : ViewportTexture = sub_vp.get_texture()
+		##texture_rect.texture = vp_texture
+		#var vp_image = vp_texture.get_image()
+		#
+		#
+		#var depth_color = vp_image.get_pixel(0, 0).srgb_to_linear()
+		#var depth_vec = Vector2(depth_color.r, depth_color.g)
+		##print(depth_vec)
+		#var normalized_distance = depth_vec.dot(Vector2(1, 1.0/255.0))
+		##var normalized_distance = depth_color.r + depth_color.g / 255.0
+		##print(depth_color.r + depth_color.g / 255.0)
+		#
+		#if normalized_distance > 0.9999:
+			#normalized_distance = 1
+		#
+		#if is_zero_approx(normalized_distance):
+			#return -Vector3.INF
+		#
+		#var depth = normalized_distance * depth_camera.far
+		#print(depth)
+		#point = src_pos + cam_dir * depth
+	#
+	#print(point)
+	##depth_camera.get_node("MeshInstance3D")
+	#new_world.get_node("MeshInstance3D2").global_position = point
+	#return point
 
 func _on_viewport_container_input(event: InputEvent) -> void:
-	
+	return
 	#var root = $Control2/SubViewportContainer/SubViewport/Node3D
 	#var camera = root.get_node("FreeLookCamera")
 	if event.is_action("left-click"):
 		if state == PickState.VIEWPORT:
-			
-			var sub_vp_container = $Control2/SubViewportContainer
-			var sub_vp = $Control2/SubViewportContainer/SubViewport
-			
-			# taken with help from https://github.com/bikemurt/godot-vertex-painter/blob/main/addons/vertex_painter/v2/vertex_painter_3d.gd
-			var mouse_loc = sub_vp_container.get_local_mouse_position()
-			var src_pos = camera.project_ray_origin(mouse_loc)
-			var cam_dir = camera.project_ray_normal(mouse_loc).normalized()
-			
-			
-			#sub_vp.render_target_update_mode = SubViewport.UPDATE_ONCE
-			var vp_texture : ViewportTexture = sub_vp.get_texture()
-			var vp_image = vp_texture.get_image()
-			
-			var depth = vp_image.get_pixel(0, 0).srgb_to_linear()
-			#var normalized_distance = Vector2(depth.r, depth.g).dot(Vector2(1, 1.0/255.0))
-			var normalized_distance = depth.r + depth.g / 255.0
-			
-			if normalized_distance > 0.9999:
-				normalized_distance = 1
-			elif normalized_distance < 0.0001:
-				normalized_distance = 0
-							   # origin + direction * (depth distance)
-			var clicked_point = src_pos + cam_dir * (normalized_distance * camera.far)
-			
-			apply_texture(uv, clicked_point)
+			var point = get_mouse_point()
+			apply_texture(uv, point)
 	
 func apply_texture(uv, clicked_point):
 	
