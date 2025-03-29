@@ -1,8 +1,9 @@
-[gd_scene load_steps=12 format=3 uid="uid://5oublp10f2kf"]
+[gd_scene load_steps=13 format=3 uid="uid://5oublp10f2kf"]
 
 [ext_resource type="Script" uid="uid://bqim8t2aait7r" path="res://scripts/freelook_orbit_camera.gd" id="1_pp1h4"]
 [ext_resource type="Script" uid="uid://cvnvmfn542kch" path="res://scenes/uv_edtiing.gd" id="2_mml1y"]
 [ext_resource type="Shader" uid="uid://38fb0hrncjqw" path="res://materials/gpu_depth.gdshader" id="3_tdpqq"]
+[ext_resource type="Material" uid="uid://do11q1h1adv05" path="res://addons/vertex_painter/shaders/vertex_color.tres" id="4_br65t"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_v8rlc"]
 sky_horizon_color = Color(0.64625, 0.65575, 0.67075, 1)
@@ -17,21 +18,20 @@ sky = SubResource("Sky_o62uu")
 tonemap_mode = 2
 glow_enabled = true
 
-[sub_resource type="ShaderMaterial" id="ShaderMaterial_7wbwp"]
-render_priority = 0
-shader = ExtResource("3_tdpqq")
-shader_parameter/camera_far = 65025.0
-
-[sub_resource type="QuadMesh" id="QuadMesh_etjwj"]
-material = SubResource("ShaderMaterial_7wbwp")
-size = Vector2(0.1, 0.1)
-
-[sub_resource type="PlaneMesh" id="PlaneMesh_b2c3b"]
-size = Vector2(100, 100)
+[sub_resource type="PlaneMesh" id="PlaneMesh_6xxcg"]
+size = Vector2(250, 250)
 
 [sub_resource type="BoxMesh" id="BoxMesh_tdpqq"]
 
 [sub_resource type="BoxMesh" id="BoxMesh_7wbwp"]
+
+[sub_resource type="QuadMesh" id="QuadMesh_tdpqq"]
+size = Vector2(0.1, 0.1)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_7wbwp"]
+render_priority = 0
+shader = ExtResource("3_tdpqq")
+shader_parameter/camera_far = 10000.0
 
 [node name="Node3D" type="Node3D"]
 
@@ -103,34 +103,9 @@ offset_bottom = -0.400009
 theme_override_font_sizes/normal_font_size = 20
 text = "Press T to add a new UV point at the mouse UV on the picture"
 
-[node name="SubViewport" type="SubViewport" parent="FreeLookOrbitCamera"]
-handle_input_locally = false
-canvas_item_default_texture_filter = 0
-positional_shadow_atlas_size = 0
-positional_shadow_atlas_quad_0 = 0
-positional_shadow_atlas_quad_1 = 0
-positional_shadow_atlas_quad_2 = 0
-positional_shadow_atlas_quad_3 = 0
-canvas_cull_mask = 4293918721
-size = Vector2i(2, 2)
-render_target_update_mode = 4
-
-[node name="depth_cam" type="Camera3D" parent="FreeLookOrbitCamera/SubViewport"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0)
-visible = false
-cull_mask = 1
-environment = SubResource("Environment_umvon")
-projection = 1
-size = 0.1
-near = 0.001
-far = 65025.0
-
-[node name="depth_plane" type="MeshInstance3D" parent="FreeLookOrbitCamera/SubViewport/depth_cam"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -0.5)
-mesh = SubResource("QuadMesh_etjwj")
-
 [node name="ground" type="MeshInstance3D" parent="."]
-mesh = SubResource("PlaneMesh_b2c3b")
+mesh = SubResource("PlaneMesh_6xxcg")
+surface_material_override/0 = ExtResource("4_br65t")
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="."]
 transform = Transform3D(0.5, 0, -0.866025, -0.233226, 0.963055, -0.134653, 0.83403, 0.269306, 0.481527, 0, 1, -32.546)
@@ -140,4 +115,29 @@ mesh = SubResource("BoxMesh_tdpqq")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -45.5028, 0, -43.5958)
 layers = 262144
 mesh = SubResource("BoxMesh_7wbwp")
-skeleton = NodePath("../FreeLookOrbitCamera/SubViewport/depth_cam")
+skeleton = NodePath("../SubViewport/depth_cam")
+
+[node name="SubViewport" type="SubViewport" parent="."]
+handle_input_locally = false
+canvas_item_default_texture_filter = 0
+positional_shadow_atlas_size = 0
+positional_shadow_atlas_quad_0 = 0
+positional_shadow_atlas_quad_1 = 0
+positional_shadow_atlas_quad_2 = 0
+positional_shadow_atlas_quad_3 = 0
+canvas_cull_mask = 4293918720
+size = Vector2i(2, 2)
+render_target_update_mode = 1
+
+[node name="depth_cam" type="Camera3D" parent="SubViewport"]
+cull_mask = 1
+environment = SubResource("Environment_umvon")
+projection = 1
+size = 0.1
+near = 0.001
+far = 10000.0
+
+[node name="depth_plane" type="MeshInstance3D" parent="SubViewport/depth_cam"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -0.5)
+mesh = SubResource("QuadMesh_tdpqq")
+surface_material_override/0 = SubResource("ShaderMaterial_7wbwp")

@@ -23,6 +23,10 @@ window/subwindows/embed_subwindows=false
 window/stretch/mode="canvas_items"
 window/stretch/aspect="expand"
 
+[editor_plugins]
+
+enabled=PackedStringArray("res://addons/vertex_painter/plugin.cfg")
+
 [input]
 
 left-click={

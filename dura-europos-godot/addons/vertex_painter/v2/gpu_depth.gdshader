@@ -3,7 +3,7 @@ render_mode unshaded;
 
 uniform sampler2D depth_texture : source_color, hint_depth_texture, filter_nearest, repeat_disable;
 
-uniform float camera_far = 10000; // 50000.0;
+uniform float camera_far = 100000.0;
 
 // Mobile renderer HDR mode has limit of 1 or 2. Pack full range depth to RG
 // https://gamedev.stackexchange.com/questions/201151/24bit-float-to-rgb

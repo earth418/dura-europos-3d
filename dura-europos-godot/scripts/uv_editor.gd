@@ -113,70 +113,53 @@ func _on_texture_input(event: InputEvent) -> void:
 @onready var space: PhysicsDirectSpaceState3D = new_world.get_world_3d().direct_space_state
 
 func get_mouse_point():
+	var sub_vp_container = $Control2/SubViewportContainer
+	var sub_vp = new_world.get_node("SubViewport")
+	var depth_camera = sub_vp.get_node("depth_cam")
 	
-	var mouse_loc = $Control2/SubViewportContainer.get_local_mouse_position()
+	# taken with help from https://github.com/bikemurt/godot-vertex-painter/blob/main/addons/vertex_painter/v2/vertex_painter_3d.gd
+	var mouse_loc = sub_vp_container.get_local_mouse_position()
+	#print(mouse_loc)
 	
-	var from = camera.project_ray_origin(mouse_loc)
-	var to = from + camera.project_ray_normal(mouse_loc) * 1000.0
+	var src_pos = camera.project_ray_origin(mouse_loc)
+	var cam_dir = camera.project_ray_normal(mouse_loc).normalized()
 	
-	var rayQuery := PhysicsRayQueryParameters3D.new()
-	rayQuery.from = from
-	rayQuery.to = to
+	#print(cam_dir)
+	depth_camera.global_position = src_pos - cam_dir
 	
-	var result = space.intersect_ray(rayQuery)
+	var point : Vector3
+	if is_zero_approx((cam_dir - Vector3(0, -1, 0)).length_squared()):
+		depth_camera.rotation_degrees = Vector3(-90.0, 0, 0)
+		point = src_pos
+		#print(cam_dir)
+	else:
+		depth_camera.look_at(depth_camera.global_position + cam_dir, Vector3.UP)
+		sub_vp.render_target_update_mode = SubViewport.UPDATE_ONCE
+		var vp_texture : ViewportTexture = sub_vp.get_texture()
+		texture_rect.texture = vp_texture
+		var vp_image = vp_texture.get_image()
+		
+		
+		var depth_color = vp_image.get_pixel(0, 0).srgb_to_linear()
+		var depth_vec = Vector2(depth_color.r, depth_color.g)
+		var normalized_distance = depth_vec.dot(Vector2(1, 1.0/255.0))
+		#var normalized_distance = depth_color.r + depth_color.g / 255.0
+		#print(depth_color.r + depth_color.g / 255.0)
+		
+		if is_zero_approx(normalized_distance):
+			return -Vector3.INF
+		
+		if normalized_distance > 0.9999:
+			normalized_distance = 1
+		
+		var depth = normalized_distance * depth_camera.far
+		print(depth)
+		point = depth_camera.global_position + cam_dir * depth
 	
-	print(result)
-	var point = result["position"]
+	print(point)
+	#depth_camera.get_node("MeshInstance3D")
 	new_world.get_node("MeshInstance3D2").global_position = point
 	return point
-	#var sub_vp_container = $Control2/SubViewportContainer
-	#var sub_vp = camera.get_node("SubViewport")
-	#var depth_camera = sub_vp.get_node("depth_cam")
-	#
-	## taken with help from https://github.com/bikemurt/godot-vertex-painter/blob/main/addons/vertex_painter/v2/vertex_painter_3d.gd
-	#var mouse_loc = sub_vp_container.get_local_mouse_position()
-	##print(mouse_loc)
-	#
-	#var src_pos = camera.project_ray_origin(mouse_loc)
-	#var cam_dir = camera.project_ray_normal(mouse_loc).normalized()
-	#
-	##print(cam_dir)
-	#depth_camera.global_position = src_pos - cam_dir
-	#
-	#var point : Vector3
-	#if is_zero_approx((cam_dir - Vector3(0, -1, 0)).length_squared()):
-		#depth_camera.rotation_degrees = Vector3(-90.0, 0, 0)
-		#point = src_pos
-		##print(cam_dir)
-	#else:
-		#depth_camera.look_at(depth_camera.global_position + cam_dir, Vector3.UP)
-		#sub_vp.render_target_update_mode = SubViewport.UPDATE_ONCE
-		#var vp_texture : ViewportTexture = sub_vp.get_texture()
-		##texture_rect.texture = vp_texture
-		#var vp_image = vp_texture.get_image()
-		#
-		#
-		#var depth_color = vp_image.get_pixel(0, 0).srgb_to_linear()
-		#var depth_vec = Vector2(depth_color.r, depth_color.g)
-		##print(depth_vec)
-		#var normalized_distance = depth_vec.dot(Vector2(1, 1.0/255.0))
-		##var normalized_distance = depth_color.r + depth_color.g / 255.0
-		##print(depth_color.r + depth_color.g / 255.0)
-		#
-		#if normalized_distance > 0.9999:
-			#normalized_distance = 1
-		#
-		#if is_zero_approx(normalized_distance):
-			#return -Vector3.INF
-		#
-		#var depth = normalized_distance * depth_camera.far
-		#print(depth)
-		#point = src_pos + cam_dir * depth
-	#
-	#print(point)
-	##depth_camera.get_node("MeshInstance3D")
-	#new_world.get_node("MeshInstance3D2").global_position = point
-	#return point
 
 func _on_viewport_container_input(event: InputEvent) -> void:
 	return
