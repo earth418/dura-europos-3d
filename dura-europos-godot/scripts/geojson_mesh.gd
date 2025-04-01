@@ -6,12 +6,12 @@ var json_contents = JSON.new()
 var mesh_location : Vector3
 #var heightmap = preload("res://assets/heightmap.png")
 
-@onready var mesh_parent : Node3D = $test
+@onready var mesh_parent : Node3D = $walls_parent
 var spawned_meshes : Array[MeshInstance3D] = []
 
 var material : Material = preload("res://materials/white_standard_mat.tres"):
 	set(new_material):
-		for temp_obj in $test.get_children(true):
+		for temp_obj in mesh_parent.get_children(true):
 			(temp_obj as MeshInstance3D).set_surface_override_material(0, new_material)
 		material = new_material
 
@@ -26,6 +26,8 @@ func load_json_file(json_filepath):
 
 @export_file var json_path: String:
 	set(json_filepath):
+		if json_filepath == "res://assets/geojsons/Q3517541.geojson":
+			generate_collisions = true
 		load_json_file(json_filepath)
 		json_path = json_filepath
 
@@ -37,11 +39,19 @@ func load_json_file(json_filepath):
 
 @export var clear : bool:
 	set(new_val):
-		for temp_obj in $test.get_children(true):
-			$test.remove_child(temp_obj)
+		for temp_obj in mesh_parent.get_children(true):
+			mesh_parent.remove_child(temp_obj)
 		spawned_meshes = []
 		$CollisionShape3D.shape = null
 		clear = false
+
+@export var generate_collisions = false:
+	set(new_val):
+		#if new_val:
+			#$CollisionShape3D.shape = BoxShape3D.new()
+		#else:
+			#$CollisionShape3D.shape = CylinderShape3D.new()
+		generate_collisions = new_val
 
 @export var debug_height = false
 
@@ -64,8 +74,8 @@ func lat_lon_to_cartesian(loc):
 	
 func generate_geojson_mesh():
 	
-	for temp_obj in $test.get_children(true):
-		$test.remove_child(temp_obj)
+	for temp_obj in mesh_parent.get_children(true):
+		mesh_parent.remove_child(temp_obj)
 	#spawned_meshes = []
 		
 	var geojson = json_contents.data
@@ -81,7 +91,7 @@ func generate_geojson_mesh():
 				var height = 174.5 + 57.3 * heightval.r
 				
 				var new_cube = $cube.duplicate()
-				$test.add_child(new_cube)
+				mesh_parent.add_child(new_cube)
 				
 				new_cube.global_position = Vector3(coords.x * 3.92 - 989, height, coords.y * 3.92 - 989)
 				new_cube.global_scale(Vector3(15.0, 15.0, 15.0))
@@ -91,7 +101,10 @@ func generate_geojson_mesh():
 		return
 		
 	if $CollisionShape3D.shape == null:
-		$CollisionShape3D.shape = CylinderShape3D.new()
+		if generate_collisions:
+			$CollisionShape3D.shape = BoxShape3D.new()
+		else:
+			$CollisionShape3D.shape = CylinderShape3D.new()
 	
 	for feature in geojson["data"]["features"]:
 		#var feature_name = feature["properties"]["id"]
@@ -145,8 +158,8 @@ func generate_geojson_mesh():
 		#shape.points = []
 		var collision_points = []
 		#var minxz_maxxz = [2000, 2000, -2000, -2000]
-		var emin = Vector3(2000, 200.0, 2000)
-		var emax = Vector3(-2000.0, -200, -2000)
+		var emin = Vector3( 50000.0,  50000.0,  50000.0)
+		var emax = Vector3(-50000.0, -50000.0, -50000.0)
 		# var new_material = $cube.mesh.surface_get_material(0).duplicate()
 		
 		#if len(locations) == 377:
@@ -167,18 +180,21 @@ func generate_geojson_mesh():
 			
 			emin = emin.min(loc1)
 			emax = emax.max(loc1)
-				
-			collision_points.append(loc1)
+			#print("min: ", emin, " , max: ", emax)
+			#collision_points.append(loc1)
 			#collision_points.append(loc2 + Vector3(0, height_scale, 0))
 			
-			# var new_collision = $CollisionShape3D.duplicate()
-			# add_child(new_collision)
-			# (new_collision.shape as BoxShape3D).size = Vector3(xscale, height_scale, 1.0)
-			# new_collision.global_position = (loc1 + loc2) / 2 + Vector3(0, height_scale, 0)
-			# new_collision.quaternion = Quaternion(Vector3.UP, -yaw)
+			if generate_collisions:
+				var new_collision : CollisionShape3D = $CollisionShape3D.duplicate()
+				add_child(new_collision)
+				new_collision.shape = BoxShape3D.new()
+				(new_collision.shape as BoxShape3D).size = Vector3(xscale, height_scale, 1.0)
+				new_collision.global_position = (loc1 + loc2) / 2 + Vector3(0, height_scale, 0)
+				new_collision.quaternion = Quaternion(Vector3.UP, -yaw)
+				print("new collision loc: ", new_collision.global_position)
 			
 			var new_cube : MeshInstance3D = $cube.duplicate()
-			$test.add_child(new_cube)
+			mesh_parent.add_child(new_cube)
 			#spawned_meshes.append(new_cube)
 			
 			#new_cube.mesh.surface_set_material(0, material)
@@ -192,11 +208,13 @@ func generate_geojson_mesh():
 		#($CollisionShape3D.shape as BoxShape3D).size = (emax - emin)
 		#$CollisionShape3D.global_position = (emax + emin) / 2 
 		
-		($CollisionShape3D.shape as CylinderShape3D).radius = (emax - emin).length() / 2
-		($CollisionShape3D.shape as CylinderShape3D).height = 50
-		
-		$CollisionShape3D.global_position = (emax + emin) / 2
-		
+		if generate_collisions:
+			$CollisionShape3D.shape = null
+		else:
+			($CollisionShape3D.shape as CylinderShape3D).radius = (emax - emin).length() / 2
+			($CollisionShape3D.shape as CylinderShape3D).height = 50
+			
+			$CollisionShape3D.global_position = (emax + emin) / 2
 
 		mesh_location = (emax + emin) / 2
 		#var shape : ConvexPolygonShape3D = $CollisionShape3D.shape as ConvexPolygonShape3D

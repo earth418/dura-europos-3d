@@ -88,6 +88,9 @@ visible = false
 mesh = SubResource("PlaneMesh_kjo07")
 skeleton = NodePath("../..")
 
+[node name="debug_test" type="Node3D" parent="debug"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -400, 225, -340)
+
 [node name="Ground" type="StaticBody3D" parent="."]
 
 [node name="ground_mesh" type="MeshInstance3D" parent="Ground"]
@@ -115,6 +118,7 @@ script = ExtResource("6_17bpj")
 [node name="test" type="Node3D" parent="GeoJSON_Meshes"]
 
 [node name="geojson_mesh" parent="GeoJSON_Meshes" instance=ExtResource("1_e5equ")]
+generate_collisions = null
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="GeoJSON_Meshes"]
 mesh = SubResource("PlaneMesh_ag00q")

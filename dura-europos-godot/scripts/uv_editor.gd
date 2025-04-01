@@ -23,6 +23,8 @@ static func create_editor(object, picture, pic_info):
 @onready var new_world = $Control2/SubViewportContainer/SubViewport/Node3D
 @onready var camera : FreeLookOrbitCamera = new_world.get_node("FreeLookOrbitCamera")
 
+@onready var geojson_mesh = preload("res://scenes/geoJSON_mesh.tscn")
+
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
 	popup_centered_ratio(0.5)
@@ -40,22 +42,28 @@ func _ready() -> void:
 	camera.anchor_transform = Transform3D(Basis(), pos)
 	#world_3d = World3D.new()
 	
-	var new_obj : Node3D
+	var new_obj : GeoJSON_Mesh
 	
 	if _object:
 		#new_obj : GeoJSON_Mesh = _object.duplicate()
-		new_obj = _object.duplicate()
+		#new_obj = _object.duplicate()
+		new_obj = geojson_mesh.instantiate()
+		add_child(new_obj)
+		_object.generate_collisions = true
+		_object.refresh = true
+		
+		
 		print(_object)
 		print(_object.json_path)
 		
-	else:
-		# debug
-		new_obj = MeshInstance3D.new()
-		var box = BoxMesh.new()
-		box.size = Vector3(50, 50, 50)
-		new_obj.mesh = box
+	#else:
+		## debug
+		#new_obj = MeshInstance3D.new()
+		#var box = BoxMesh.new()
+		#box.size = Vector3(50, 50, 50)
+		#new_obj.mesh = box
 		
-	new_world.add_child(new_obj)
+	#new_world.add_child(new_obj)
 	new_obj.global_position = pos
 	if _picture:
 		(texture_rect.texture as ImageTexture).set_image(_picture)
