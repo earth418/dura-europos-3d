@@ -23,7 +23,13 @@ static func create_editor(object, picture, pic_info):
 @onready var new_world = $Control2/SubViewportContainer/SubViewport/Node3D
 @onready var camera : FreeLookOrbitCamera = new_world.get_node("FreeLookOrbitCamera")
 
+var uv_list : Dictionary = {}
+@onready var uv_itemlist : ItemList = camera.get_node("Control/ItemList")
+
+
 @onready var geojson_mesh = preload("res://scenes/geoJSON_mesh.tscn")
+
+@export var object : Node
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
@@ -35,10 +41,6 @@ func _ready() -> void:
 	#$Control2/SubViewportContainer/SubViewport/Node3D.position = pos
 	#$Control2/SubViewportContainer/SubViewport/FreeLookOrbitCamera.anchor_transform = Transform3D(Basis(), pos)
 	
-	#var new_world = editor_scene.instantiate()
-	
-	#$Control2/SubViewportContainer/SubViewport.add_child(new_world)
-	
 	camera.anchor_transform = Transform3D(Basis(), pos)
 	#world_3d = World3D.new()
 	
@@ -47,16 +49,23 @@ func _ready() -> void:
 	if _object:
 		#new_obj : GeoJSON_Mesh = _object.duplicate()
 		#new_obj = _object.duplicate()
+		print("Adding object...")
 		new_obj = geojson_mesh.instantiate()
+		new_obj.json_path = _object.json_path
 		add_child(new_obj)
-		_object.generate_collisions = true
-		_object.refresh = true
+		new_obj.generate_collisions = true
+		new_obj.load_json_file(_object.json_path)
+		print(new_obj.json_contents)
+		new_obj.generate_geojson_mesh()
+		#_object.refresh = true
 		
 		
-		print(_object)
-		print(_object.json_path)
+		print(new_obj)
+		print(new_obj.json_path)
+		new_obj.global_position = pos
 		
-	#else:
+	else:
+		object = new_world.get_node("Area3D")
 		## debug
 		#new_obj = MeshInstance3D.new()
 		#var box = BoxMesh.new()
@@ -64,7 +73,6 @@ func _ready() -> void:
 		#new_obj.mesh = box
 		
 	#new_world.add_child(new_obj)
-	new_obj.global_position = pos
 	if _picture:
 		(texture_rect.texture as ImageTexture).set_image(_picture)
 	else:
@@ -79,8 +87,8 @@ var uv : Vector2
 func _input(event: InputEvent) -> void:
 	
 	
-	if event.is_action_pressed("left-click"):
-		var x =get_mouse_point()
+	#if event.is_action_pressed("left-click"):
+		#var x =get_mouse_point()
 		#print(x)
 		
 	if event.is_action_pressed("escape"):
@@ -114,7 +122,7 @@ func _on_texture_input(event: InputEvent) -> void:
 			var i = get_mouse_position()
 			var base = texture_rect.position
 			uv = (i - base) / texture_rect.size
-			print(uv)
+			#print(uv)
 			state = PickState.VIEWPORT
 			
 
@@ -132,45 +140,61 @@ func get_mouse_point():
 	var src_pos = camera.project_ray_origin(mouse_loc)
 	var cam_dir = camera.project_ray_normal(mouse_loc).normalized()
 	
-	#print(cam_dir)
-	depth_camera.global_position = src_pos - cam_dir
-	
-	var point : Vector3
-	if is_zero_approx((cam_dir - Vector3(0, -1, 0)).length_squared()):
-		depth_camera.rotation_degrees = Vector3(-90.0, 0, 0)
-		point = src_pos
-		#print(cam_dir)
+	var ray_query = PhysicsRayQueryParameters3D.new()
+	ray_query.collide_with_areas = true
+	#ray_query.collision_mask =
+	ray_query.from = src_pos
+	ray_query.to = src_pos + 1000.0 * cam_dir
+	var intersect = space.intersect_ray(ray_query)
+
+	if intersect:
+		var point = intersect["position"]
+		
+		#print(point)
+		new_world.get_node("MeshInstance3D2").global_position = point
+		return point
 	else:
-		depth_camera.look_at(depth_camera.global_position + cam_dir, Vector3.UP)
-		sub_vp.render_target_update_mode = SubViewport.UPDATE_ONCE
-		var vp_texture : ViewportTexture = sub_vp.get_texture()
-		texture_rect.texture = vp_texture
-		var vp_image = vp_texture.get_image()
-		
-		
-		var depth_color = vp_image.get_pixel(0, 0).srgb_to_linear()
-		var depth_vec = Vector2(depth_color.r, depth_color.g)
-		var normalized_distance = depth_vec.dot(Vector2(1, 1.0/255.0))
-		#var normalized_distance = depth_color.r + depth_color.g / 255.0
-		#print(depth_color.r + depth_color.g / 255.0)
-		
-		if is_zero_approx(normalized_distance):
-			return -Vector3.INF
-		
-		if normalized_distance > 0.9999:
-			normalized_distance = 1
-		
-		var depth = normalized_distance * depth_camera.far
-		print(depth)
-		point = depth_camera.global_position + cam_dir * depth
-	
-	print(point)
-	#depth_camera.get_node("MeshInstance3D")
-	new_world.get_node("MeshInstance3D2").global_position = point
-	return point
+		return -Vector3.INF
+	#
+	##print(cam_dir)
+	#depth_camera.global_position = src_pos - cam_dir
+	#
+	#var point : Vector3
+	#if is_zero_approx((cam_dir - Vector3(0, -1, 0)).length_squared()):
+		#depth_camera.rotation_degrees = Vector3(-90.0, 0, 0)
+		#point = src_pos
+		##print(cam_dir)
+	#else:
+		#depth_camera.look_at(depth_camera.global_position + cam_dir, Vector3.UP)
+		#sub_vp.render_target_update_mode = SubViewport.UPDATE_ONCE
+		#var vp_texture : ViewportTexture = sub_vp.get_texture()
+		##texture_rect.texture = vp_texture
+		#var vp_image = vp_texture.get_image()
+		#
+		#
+		#var depth_color = vp_image.get_pixel(0, 0).srgb_to_linear()
+		#var depth_vec = Vector2(depth_color.r, depth_color.g)
+		#var normalized_distance = depth_vec.dot(Vector2(1, 1.0/255.0))
+		##var normalized_distance = depth_color.r + depth_color.g / 255.0
+		##print(depth_color.r + depth_color.g / 255.0)
+		#
+		#if is_zero_approx(normalized_distance):
+			#return -Vector3.INF
+		#
+		#if normalized_distance > 0.9999:
+			#normalized_distance = 1
+		#
+		#var depth = normalized_distance * depth_camera.far
+		#print(depth)
+		#point = depth_camera.global_position + cam_dir * depth
+	#
+	#print(point)
+	##depth_camera.get_node("MeshInstance3D")
+	#new_world.get_node("MeshInstance3D2").global_position = point
+	#return point
 
 func _on_viewport_container_input(event: InputEvent) -> void:
-	return
+	#return
 	#var root = $Control2/SubViewportContainer/SubViewport/Node3D
 	#var camera = root.get_node("FreeLookCamera")
 	if event.is_action("left-click"):
@@ -178,8 +202,13 @@ func _on_viewport_container_input(event: InputEvent) -> void:
 			var point = get_mouse_point()
 			apply_texture(uv, point)
 	
-func apply_texture(uv, clicked_point):
+func apply_texture(uv : Vector2, clicked_point : Vector3):
 	
 	print("associating uv ", uv, " with 3d point ", clicked_point)
+	uv_list[uv] = clicked_point
+	uv_itemlist.add_item(str(uv))
 	state = PickState.DONE
-	#pass
+	
+	var mesh : MeshInstance3D = object.get_node("MeshInstance3D")
+	
+	print(mesh.mesh.ARRAY_TEX_UV)

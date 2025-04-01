@@ -26,8 +26,8 @@ func load_json_file(json_filepath):
 
 @export_file var json_path: String:
 	set(json_filepath):
-		if json_filepath == "res://assets/geojsons/Q3517541.geojson":
-			generate_collisions = true
+		#if json_filepath == "res://assets/geojsons/Q3517541.geojson":
+			#generate_collisions = true
 		load_json_file(json_filepath)
 		json_path = json_filepath
 

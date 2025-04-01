@@ -1,9 +1,10 @@
-[gd_scene load_steps=13 format=3 uid="uid://5oublp10f2kf"]
+[gd_scene load_steps=17 format=3 uid="uid://5oublp10f2kf"]
 
 [ext_resource type="Script" uid="uid://bqim8t2aait7r" path="res://scripts/freelook_orbit_camera.gd" id="1_pp1h4"]
 [ext_resource type="Script" uid="uid://cvnvmfn542kch" path="res://scenes/uv_edtiing.gd" id="2_mml1y"]
 [ext_resource type="Shader" uid="uid://38fb0hrncjqw" path="res://materials/gpu_depth.gdshader" id="3_tdpqq"]
 [ext_resource type="Material" uid="uid://do11q1h1adv05" path="res://addons/vertex_painter/shaders/vertex_color.tres" id="4_br65t"]
+[ext_resource type="Texture2D" uid="uid://cudork5nw1pr2" path="res://assets/test_text.png" id="5_br65t"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_v8rlc"]
 sky_horizon_color = Color(0.64625, 0.65575, 0.67075, 1)
@@ -32,6 +33,18 @@ size = Vector2(0.1, 0.1)
 render_priority = 0
 shader = ExtResource("3_tdpqq")
 shader_parameter/camera_far = 10000.0
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_7wbwp"]
+size = Vector3(10, 10, 10)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_df25o"]
+albedo_texture = ExtResource("5_br65t")
+uv1_scale = Vector3(4.585, 4.585, 4.585)
+
+[sub_resource type="BoxMesh" id="BoxMesh_br65t"]
+lightmap_size_hint = Vector2i(104, 156)
+material = SubResource("StandardMaterial3D_df25o")
+size = Vector3(10, 10, 10)
 
 [node name="Node3D" type="Node3D"]
 
@@ -104,6 +117,7 @@ theme_override_font_sizes/normal_font_size = 20
 text = "Press T to add a new UV point at the mouse UV on the picture"
 
 [node name="ground" type="MeshInstance3D" parent="."]
+visible = false
 mesh = SubResource("PlaneMesh_6xxcg")
 surface_material_override/0 = ExtResource("4_br65t")
 
@@ -144,3 +158,11 @@ far = 10000.0
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -0.5)
 mesh = SubResource("QuadMesh_tdpqq")
 surface_material_override/0 = SubResource("ShaderMaterial_7wbwp")
+
+[node name="Area3D" type="Area3D" parent="."]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Area3D"]
+shape = SubResource("BoxShape3D_7wbwp")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Area3D"]
+mesh = SubResource("BoxMesh_br65t")

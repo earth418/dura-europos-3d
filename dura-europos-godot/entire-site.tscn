@@ -110,7 +110,7 @@ heightmap = ExtResource("3_xctb6")
 material = ExtResource("4_hisut")
 
 [node name="Player" parent="." instance=ExtResource("8_wi7pd")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 250, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -257.09, 250, 152.518)
 
 [node name="GeoJSON_Meshes" type="Node3D" parent="."]
 script = ExtResource("6_17bpj")

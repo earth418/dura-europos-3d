@@ -124,6 +124,7 @@ func open_uv_editor(obj, photo, photo_info = null):
 	
 	if !uv_window or !uv_window.visible:
 		uv_window = UVEditorWindow.create_editor(obj, photo, photo_info)
+		#get_world_3d()
 		add_child(uv_window)
 	#add_child(window)
 	# var v = Viewport.new()

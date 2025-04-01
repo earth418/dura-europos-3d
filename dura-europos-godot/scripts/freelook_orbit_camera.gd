@@ -187,8 +187,8 @@ func _orbit_process_transformation(delta: float):
 	_rotation.y += _move_speed.x * delta * ROTATE_SPEED
 	if _rotation.x < 0.05:
 		_rotation.x = 0.05
-	if _rotation.x > PI:
-		_rotation.x = PI
+	if _rotation.x > PI - 0.05:
+		_rotation.x = PI - 0.05
 		
 	#print(_rotation.x)
 	_move_speed = Vector2()
