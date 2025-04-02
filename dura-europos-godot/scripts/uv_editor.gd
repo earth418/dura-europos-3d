@@ -23,7 +23,8 @@ static func create_editor(object, picture, pic_info):
 @onready var new_world = $Control2/SubViewportContainer/SubViewport/Node3D
 @onready var camera : FreeLookOrbitCamera = new_world.get_node("FreeLookOrbitCamera")
 
-var uv_list : Dictionary = {}
+#var uv_list : Dictionary = {}
+var uv_pos_list : Array = []
 @onready var uv_itemlist : ItemList = camera.get_node("Control/ItemList")
 
 
@@ -84,8 +85,12 @@ enum PickState {TEX, VIEWPORT, DONE}
 var state : PickState = PickState.DONE
 var uv : Vector2
 
+var _mouse_position : Vector2
+
 func _input(event: InputEvent) -> void:
 	
+	if event is InputEventMouseMotion:
+		_mouse_position = event.relative
 	
 	#if event.is_action_pressed("left-click"):
 		#var x =get_mouse_point()
@@ -101,8 +106,13 @@ func _input(event: InputEvent) -> void:
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta: float) -> void:
-	pass
-	
+	if state == PickState.TEX:
+		var panel : Panel = $Control2/TextureRect/Panel
+		if len(uv_pos_list) > 0:
+			var last_uv = uv_pos_list[-1][0]
+			panel.position = last_uv
+			panel.size = _mouse_position - last_uv
+		
 	#var sub_vp = $Control2/SubViewportContainer/SubViewport
 	#var vp_texture : ViewportTexture = sub_vp.get_texture()
 	#texture_rect.texture = vp_texture
@@ -145,53 +155,17 @@ func get_mouse_point():
 	#ray_query.collision_mask =
 	ray_query.from = src_pos
 	ray_query.to = src_pos + 1000.0 * cam_dir
-	var intersect = space.intersect_ray(ray_query)
-
-	if intersect:
-		var point = intersect["position"]
-		
-		#print(point)
-		new_world.get_node("MeshInstance3D2").global_position = point
-		return point
-	else:
-		return -Vector3.INF
-	#
-	##print(cam_dir)
-	#depth_camera.global_position = src_pos - cam_dir
-	#
-	#var point : Vector3
-	#if is_zero_approx((cam_dir - Vector3(0, -1, 0)).length_squared()):
-		#depth_camera.rotation_degrees = Vector3(-90.0, 0, 0)
-		#point = src_pos
-		##print(cam_dir)
+	#var intersect = space.intersect_ray(ray_query)
+	return space.intersect_ray(ray_query)
+	#if intersect:
+		#var point = intersect["position"]
+		#var normal = intersect["normal"]
+		#
+		##print(point)
+		##new_world.get_node("MeshInstance3D2").global_position = point
+		#return point
 	#else:
-		#depth_camera.look_at(depth_camera.global_position + cam_dir, Vector3.UP)
-		#sub_vp.render_target_update_mode = SubViewport.UPDATE_ONCE
-		#var vp_texture : ViewportTexture = sub_vp.get_texture()
-		##texture_rect.texture = vp_texture
-		#var vp_image = vp_texture.get_image()
-		#
-		#
-		#var depth_color = vp_image.get_pixel(0, 0).srgb_to_linear()
-		#var depth_vec = Vector2(depth_color.r, depth_color.g)
-		#var normalized_distance = depth_vec.dot(Vector2(1, 1.0/255.0))
-		##var normalized_distance = depth_color.r + depth_color.g / 255.0
-		##print(depth_color.r + depth_color.g / 255.0)
-		#
-		#if is_zero_approx(normalized_distance):
-			#return -Vector3.INF
-		#
-		#if normalized_distance > 0.9999:
-			#normalized_distance = 1
-		#
-		#var depth = normalized_distance * depth_camera.far
-		#print(depth)
-		#point = depth_camera.global_position + cam_dir * depth
-	#
-	#print(point)
-	##depth_camera.get_node("MeshInstance3D")
-	#new_world.get_node("MeshInstance3D2").global_position = point
-	#return point
+		#return -Vector3.INF
 
 func _on_viewport_container_input(event: InputEvent) -> void:
 	#return
@@ -199,16 +173,44 @@ func _on_viewport_container_input(event: InputEvent) -> void:
 	#var camera = root.get_node("FreeLookCamera")
 	if event.is_action("left-click"):
 		if state == PickState.VIEWPORT:
-			var point = get_mouse_point()
-			apply_texture(uv, point)
+			var intersect = get_mouse_point()
+			if intersect:
+				apply_texture(uv, intersect)
 	
-func apply_texture(uv : Vector2, clicked_point : Vector3):
+func apply_texture(uv : Vector2, intersection : Dictionary):
 	
+	var clicked_point : Vector3 = intersection["position"]
+	var clicked_normal : Vector3 = intersection["normal"]
 	print("associating uv ", uv, " with 3d point ", clicked_point)
-	uv_list[uv] = clicked_point
+	#uv_list[uv] = clicked_point
+	uv_pos_list.append([uv, clicked_point])
 	uv_itemlist.add_item(str(uv))
 	state = PickState.DONE
 	
-	var mesh : MeshInstance3D = object.get_node("MeshInstance3D")
+	for i in range(0, len(uv_pos_list) - 1, 2):
+		
+		var c1 = uv_pos_list[i] # c1[0] is the UV, c1[1] is the vector
+		#var c1_uv = c1[0]
+		#var c1_vec = c1[1]
+		var c2 = uv_pos_list[i + 1] # c2[0] is the UV, c2[1] is the vector
+		
+		var center = (c1[1] + c2[1]) / 2.0
+		var extent = c2[1] - c1[1]
+		var side_length = extent.length() / (sqrt(2.0))
+		
+		var new_plane = PlaneMesh.new()
+		new_plane.size = Vector2.ONE * side_length
+		var new_plane_mesh = MeshInstance3D.new()
+		add_child(new_plane_mesh)
+		new_plane_mesh.mesh = new_plane
+		#new_plane_mesh.basis.from_euler()
+		#new_plane_mesh.global_position = center
+		#new_plane_mesh.quaternion = Quaternion(clicked_normal, 0.0)
+		new_plane_mesh.look_at_from_position(center, center + Vector3.FORWARD, clicked_normal)
+		#new_plane_mesh.po
 	
-	print(mesh.mesh.ARRAY_TEX_UV)
+	#var d = Decal.new()
+	
+	#var mesh : MeshInstance3D = object.get_node("MeshInstance3D")
+	#
+	#print(mesh.mesh.ARRAY_TEX_UV)

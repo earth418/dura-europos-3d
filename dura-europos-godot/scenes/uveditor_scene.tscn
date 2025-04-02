@@ -1,4 +1,4 @@
-[gd_scene load_steps=17 format=3 uid="uid://5oublp10f2kf"]
+[gd_scene load_steps=16 format=3 uid="uid://5oublp10f2kf"]
 
 [ext_resource type="Script" uid="uid://bqim8t2aait7r" path="res://scripts/freelook_orbit_camera.gd" id="1_pp1h4"]
 [ext_resource type="Script" uid="uid://cvnvmfn542kch" path="res://scenes/uv_edtiing.gd" id="2_mml1y"]
@@ -37,13 +37,8 @@ shader_parameter/camera_far = 10000.0
 [sub_resource type="BoxShape3D" id="BoxShape3D_7wbwp"]
 size = Vector3(10, 10, 10)
 
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_df25o"]
-albedo_texture = ExtResource("5_br65t")
-uv1_scale = Vector3(4.585, 4.585, 4.585)
-
 [sub_resource type="BoxMesh" id="BoxMesh_br65t"]
 lightmap_size_hint = Vector2i(104, 156)
-material = SubResource("StandardMaterial3D_df25o")
 size = Vector3(10, 10, 10)
 
 [node name="Node3D" type="Node3D"]
@@ -78,7 +73,7 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 max_columns = 6
-fixed_column_width = 100
+fixed_column_width = 200
 
 [node name="RichTextLabel" type="RichTextLabel" parent="FreeLookOrbitCamera/Control"]
 layout_mode = 1
@@ -166,3 +161,9 @@ shape = SubResource("BoxShape3D_7wbwp")
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="Area3D"]
 mesh = SubResource("BoxMesh_br65t")
+
+[node name="Decal" type="Decal" parent="Area3D/MeshInstance3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.081781, 4.93935, -0.107184)
+visible = false
+size = Vector3(4.56628, 6.50134, 8.40521)
+texture_albedo = ExtResource("5_br65t")

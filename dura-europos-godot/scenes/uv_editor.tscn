@@ -47,6 +47,13 @@ texture = SubResource("ImageTexture_uqypi")
 expand_mode = 1
 stretch_mode = 5
 
+[node name="Panel" type="Panel" parent="Control2/TextureRect"]
+layout_mode = 0
+offset_left = 224.0
+offset_top = 137.0
+offset_right = 484.0
+offset_bottom = 364.0
+
 [node name="Label" type="Label" parent="Control2"]
 layout_mode = 0
 offset_left = 542.0
