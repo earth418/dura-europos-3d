@@ -132,7 +132,6 @@ func _on_texture_input(event: InputEvent) -> void:
 			uv = (i - base) / texture_rect.size
 			#print(uv)
 			state = PickState.VIEWPORT
-			
 
 @onready var space: PhysicsDirectSpaceState3D = new_world.get_world_3d().direct_space_state
 
@@ -177,6 +176,7 @@ func _on_viewport_container_input(event: InputEvent) -> void:
 	
 func apply_texture(uv : Vector2, intersection : Dictionary):
 	
+	var clicked_object = intersection["collider"]
 	var clicked_point : Vector3 = intersection["position"]
 	var clicked_normal : Vector3 = intersection["normal"]
 	print("associating uv ", uv, " with 3d point ", clicked_point)
@@ -200,21 +200,33 @@ func apply_texture(uv : Vector2, intersection : Dictionary):
 		var scale = (max_uv - min_uv) * old_tex_size
 		
 		var material : StandardMaterial3D = texture_mat.duplicate()
-		var region = Rect2i(offset, scale) 
-		var tex_img = old_tex.get_region(region)
+		#var region = Rect2i(offset, scale) 
+		var old_tex_data = old_tex.get_data()
+		var start_index : int = int(offset.x) * old_tex_size.y + int(offset.y)
+		var end_index : int = start_index + int(scale.x) * old_tex_size.y + int(scale.y)
+		var new_tex_data = old_tex_data.slice(start_index, end_index)
+		print("Starting at i=",start_index," until i=", end_index)
+		print("new data: ", new_tex_data)
+		#var tex_img = old_tex.get_region(region)
+		print("new image: ( ", scale.x, " x ", scale.y ," )")
+		
+		var tex_img = Image.create_from_data(int(scale.x), int(scale.y), false, old_tex.get_format(), new_tex_data)
 		#print(region)
-		var new_tex = ImageTexture.new()
-		new_tex.set_image(tex_img)
+		var new_tex = ImageTexture.create_from_image(tex_img)
+		#new_tex.set_image(tex_img)
 		material.albedo_texture = new_tex
+		#print(region)
+		#print(old_tex.data)
+		print(tex_img.data)
 		
 		var center = (c1[1] + c2[1]) / 2.0
 		var extent = c2[1] - c1[1]
-		var side_length = extent.length() / (sqrt(2.0))
+		var side_length = (extent.length() * sqrt(2.0)) / 2.0
 		
 		var new_plane = PlaneMesh.new()
 		new_plane.size = Vector2.ONE * side_length
 		var new_plane_mesh = MeshInstance3D.new()
-		add_child(new_plane_mesh)
+		clicked_object.add_child(new_plane_mesh)
 		new_plane_mesh.mesh = new_plane
 		#new_plane_mesh.basis.from_euler()
 		#new_plane_mesh.global_position = center
