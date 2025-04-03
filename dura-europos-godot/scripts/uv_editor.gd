@@ -29,6 +29,7 @@ var uv_pos_list : Array = []
 
 
 @onready var geojson_mesh = preload("res://scenes/geoJSON_mesh.tscn")
+@onready var texture_mat  = preload("res://materials/tex_display.tres")
 
 @export var object : Node
 
@@ -119,12 +120,9 @@ func _process(delta: float) -> void:
 	#var vp_image = vp_texture.get_image()
 	#(texture_rect.texture as ImageTexture).set_image(vp_image)
 
-
 func _on_close_requested() -> void:
 	hide()
 	
-
-
 func _on_texture_input(event: InputEvent) -> void:
 	if event.is_action("left-click"):
 		if state == PickState.TEX:
@@ -190,9 +188,24 @@ func apply_texture(uv : Vector2, intersection : Dictionary):
 	for i in range(0, len(uv_pos_list) - 1, 2):
 		
 		var c1 = uv_pos_list[i] # c1[0] is the UV, c1[1] is the vector
-		#var c1_uv = c1[0]
-		#var c1_vec = c1[1]
 		var c2 = uv_pos_list[i + 1] # c2[0] is the UV, c2[1] is the vector
+		
+		var old_tex = texture_rect.texture.get_image()
+		var old_tex_size = Vector2(old_tex.get_size())
+		
+		# making the material
+		var min_uv = c1[0].min(c2[0])
+		var max_uv = c1[0].max(c2[0])
+		var offset = min_uv * old_tex_size
+		var scale = (max_uv - min_uv) * old_tex_size
+		
+		var material : StandardMaterial3D = texture_mat.duplicate()
+		var region = Rect2i(offset, scale) 
+		var tex_img = old_tex.get_region(region)
+		#print(region)
+		var new_tex = ImageTexture.new()
+		new_tex.set_image(tex_img)
+		material.albedo_texture = new_tex
 		
 		var center = (c1[1] + c2[1]) / 2.0
 		var extent = c2[1] - c1[1]
@@ -207,6 +220,9 @@ func apply_texture(uv : Vector2, intersection : Dictionary):
 		#new_plane_mesh.global_position = center
 		#new_plane_mesh.quaternion = Quaternion(clicked_normal, 0.0)
 		new_plane_mesh.look_at_from_position(center, center + Vector3.FORWARD, clicked_normal)
+		new_plane_mesh.rotate(clicked_normal.cross(Vector3.UP), PI / 2.0)
+		new_plane_mesh.position += clicked_normal * 1.01
+		new_plane_mesh.set_surface_override_material(0, material)
 		#new_plane_mesh.po
 	
 	#var d = Decal.new()
