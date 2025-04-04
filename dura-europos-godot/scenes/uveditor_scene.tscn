@@ -54,6 +54,7 @@ shadow_enabled = true
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 4, 4)
 script = ExtResource("1_pp1h4")
 camera_type = 1
+DEFAULT_DISTANCE = 20.0
 
 [node name="Control" type="Control" parent="FreeLookOrbitCamera"]
 layout_mode = 3
@@ -109,7 +110,8 @@ anchor_bottom = 0.25
 offset_right = 0.47998
 offset_bottom = -0.400009
 theme_override_font_sizes/normal_font_size = 20
-text = "Press T to add a new UV point at the mouse UV on the picture"
+text = "Press T to add a four UV points and four 3D points to overlay
+Press G to do add squares by clicking corners instead"
 
 [node name="ground" type="MeshInstance3D" parent="."]
 visible = false

@@ -25,8 +25,8 @@ static func create_editor(object, picture, pic_info):
 
 #var uv_list : Dictionary = {}
 var uv_pos_list : Array = []
-@onready var uv_itemlist : ItemList = camera.get_node("Control/ItemList")
 
+@onready var uv_itemlist : ItemList = camera.get_node("Control/ItemList")
 
 @onready var geojson_mesh = preload("res://scenes/geoJSON_mesh.tscn")
 @onready var texture_mat  = preload("res://materials/tex_display.tres")
@@ -84,7 +84,10 @@ func _ready() -> void:
 
 enum PickState {TEX, VIEWPORT, DONE}
 var state : PickState = PickState.DONE
-var uv : Vector2
+
+var working_uvs : Array[Vector2]
+var working_pos : Array[Vector3]
+var working_intersect : Dictionary
 
 var _mouse_position : Vector2
 
@@ -124,13 +127,13 @@ func _on_close_requested() -> void:
 	hide()
 	
 func _on_texture_input(event: InputEvent) -> void:
-	if event.is_action("left-click"):
-		if state == PickState.TEX:
-			
-			var i = get_mouse_position()
-			var base = texture_rect.position
-			uv = (i - base) / texture_rect.size
-			#print(uv)
+	if event.is_action("left-click") and state == PickState.TEX:
+		
+		var i = get_mouse_position()
+		var base = texture_rect.position
+		working_uvs.append((i - base) / texture_rect.size)
+		#print(uv)
+		if len(working_uvs) == 4:
 			state = PickState.VIEWPORT
 
 @onready var space: PhysicsDirectSpaceState3D = new_world.get_world_3d().direct_space_state
@@ -172,52 +175,70 @@ func _on_viewport_container_input(event: InputEvent) -> void:
 		if state == PickState.VIEWPORT:
 			var intersect = get_mouse_point()
 			if intersect:
-				apply_texture(uv, intersect)
+				if not working_intersect:
+					working_intersect = intersect
+				
+				if intersect["normal"].dot(working_intersect["normal"]) > 0.95:
+					working_pos.append(intersect["position"])
+					if len(working_pos) == 4:
+						apply_texture()
+				else:
+					print("Click the same surface please!")
+				
+				
+func apply_texture():
 	
-func apply_texture(uv : Vector2, intersection : Dictionary):
-	
-	var clicked_object = intersection["collider"]
-	var clicked_point : Vector3 = intersection["position"]
-	var clicked_normal : Vector3 = intersection["normal"]
-	print("associating uv ", uv, " with 3d point ", clicked_point)
+	var clicked_object = working_intersect["collider"]
+	#var clicked_point : Vector3 = working_intersect["position"]
+	var clicked_normal : Vector3 = working_intersect["normal"]
+	for i in range(len(working_pos)):
+		print("associating uv ", working_uvs[i], " with 3d point ", working_pos[i])
 	#uv_list[uv] = clicked_point
-	uv_pos_list.append([uv, clicked_point])
-	uv_itemlist.add_item(str(uv))
-	state = PickState.DONE
+	uv_pos_list.append([working_uvs, working_pos])
+	uv_itemlist.add_item("texture 1")
 	
 	for i in range(0, len(uv_pos_list) - 1, 2):
 		
 		var c1 = uv_pos_list[i] # c1[0] is the UV, c1[1] is the vector
 		var c2 = uv_pos_list[i + 1] # c2[0] is the UV, c2[1] is the vector
 		
-		var old_tex = texture_rect.texture.get_image()
-		var old_tex_size = Vector2(old_tex.get_size())
+		#var old_tex = texture_rect.texture.get_image()
+		##old_tex.crop()
+		#var old_tex_size = Vector2(old_tex.get_size())
 		
 		# making the material
-		var min_uv = c1[0].min(c2[0])
-		var max_uv = c1[0].max(c2[0])
-		var offset = min_uv * old_tex_size
-		var scale = (max_uv - min_uv) * old_tex_size
+		#var min_uv = Vector2i(c1[0].min(c2[0]) * old_tex_size)
+		#var max_uv = Vector2i(c1[0].max(c2[0]) * old_tex_size)
+		##var offset = min_uv 
+		#var scale = (max_uv - min_uv)
 		
 		var material : StandardMaterial3D = texture_mat.duplicate()
 		#var region = Rect2i(offset, scale) 
-		var old_tex_data = old_tex.get_data()
-		var start_index : int = int(offset.x) * old_tex_size.y + int(offset.y)
-		var end_index : int = start_index + int(scale.x) * old_tex_size.y + int(scale.y)
-		var new_tex_data = old_tex_data.slice(start_index, end_index)
-		print("Starting at i=",start_index," until i=", end_index)
-		print("new data: ", new_tex_data)
-		#var tex_img = old_tex.get_region(region)
-		print("new image: ( ", scale.x, " x ", scale.y ," )")
 		
-		var tex_img = Image.create_from_data(int(scale.x), int(scale.y), false, old_tex.get_format(), new_tex_data)
-		#print(region)
-		var new_tex = ImageTexture.create_from_image(tex_img)
-		#new_tex.set_image(tex_img)
-		material.albedo_texture = new_tex
-		#print(region)
+		#var new_tex_data = []
+		##
+		#var old_tex_data = old_tex.get_data()
+		#var start_index : int = int(offset.y) * old_tex_size.x + int(offset.x)
+		#var end_index : int = start_index + int(scale.y) * old_tex_size.x + int(scale.x)
+		
+		#for row in range(min_uv.x, max_uv.x):
+			#var row_start_index = row * scale.y
+			#new_tex_data.append_array(old_tex_data.slice(row_start_index, row_start_index + scale.y))
+		#print(len(old_tex.data["data"]))
 		#print(old_tex.data)
-		print(tex_img.data)
+		
+		#var new_tex_data = old_tex_data.slice(start_index, end_index)
+		#print("Starting at i=",start_index," until i=", end_index)
+		#print("new data: ", new_tex_data)
+		#var tex_img = old_tex.get_region(region)
+		#print(len(new_tex_data))
+		#print("new image: ( ", scale.x, " x ", scale.y ," )")
+		
+		#var tex_img = Image.create_from_data(scale.x, scale.y, true, old_tex.get_format(), new_tex_data)
+		#print(region)
+		#var new_tex = ImageTexture.create_from_image(tex_img)
+		#new_tex.set_image(tex_img)
+		material.albedo_texture = texture_rect.texture
 		
 		var center = (c1[1] + c2[1]) / 2.0
 		var extent = c2[1] - c1[1]
@@ -237,8 +258,7 @@ func apply_texture(uv : Vector2, intersection : Dictionary):
 		new_plane_mesh.set_surface_override_material(0, material)
 		#new_plane_mesh.po
 	
-	#var d = Decal.new()
-	
-	#var mesh : MeshInstance3D = object.get_node("MeshInstance3D")
-	#
-	#print(mesh.mesh.ARRAY_TEX_UV)
+	state = PickState.DONE
+	working_intersect = {}
+	working_pos = []
+	working_uvs = []
