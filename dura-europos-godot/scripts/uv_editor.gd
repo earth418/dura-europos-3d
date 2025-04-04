@@ -42,29 +42,34 @@ func _ready() -> void:
 	#priun$Control2.size
 	$Control2/SubViewportContainer/SubViewport.size = $Control2.size * Vector2(0.5, 1.0)
 	grab_focus()
-	var pos = Vector3(0, 0.0, 0)
-	camera.anchor_transform = Transform3D(Basis(), pos)
+	#var pos = Vector3(0, 0.0, 0)
+	#camera.anchor_transform = Transform3D(Basis(), _object.center_loc)
 	#world_3d = World3D.new()
 	
 	var new_obj : GeoJSON_Mesh
 	
 	if _object:
 		#new_obj : GeoJSON_Mesh = _object.duplicate()
-		#new_obj = _object.duplicate()
-		print("Adding object...")
-		new_obj = geojson_mesh.instantiate()
-		new_obj.json_path = _object.json_path
-		add_child(new_obj)
-		new_obj.generate_collisions = true
-		new_obj.load_json_file(_object.json_path)
-		print(new_obj.json_contents)
-		new_obj.generate_geojson_mesh()
-		#_object.refresh = true
-		
-		
-		print(new_obj)
-		print(new_obj.json_path)
-		new_obj.global_position = pos	
+		#new_obj = _object.duplicate(DUPLICATE_SCRIPTS | DUPLICATE_GROUPS | DUPLICATE_SIGNALS)
+		#add_child(new_obj)
+		_object.global_position = -_object.mesh_location
+		#camera.anchor_transform = Transform3D(Basis(), _object.mesh_location)
+		_object.generate_collisions = true
+		_object.refresh = true
+		#print("Adding object...")
+		#new_obj = geojson_mesh.instantiate()
+		#new_obj.json_path = _object.json_path
+		#add_child(new_obj)
+		#new_obj.generate_collisions = true
+		#new_obj.load_json_file(_object.json_path)
+		#print(new_obj.json_contents)
+		#new_obj.generate_geojson_mesh()
+		##_object.refresh = true
+		#
+		#
+		#print(new_obj)
+		#print(new_obj.json_path)
+		#new_obj.global_position = pos	
 	else:
 		object = new_world.get_node("Area3D")
 		## debug
@@ -93,17 +98,22 @@ func _input(event: InputEvent) -> void:
 	if event is InputEventMouseMotion:
 		_mouse_position = event.relative
 	
-	#if event.is_action_pressed("left-click"):
+	#if event.is_action_pressed("left-click"):	
+		#Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
 		#var x =get_mouse_point()
-		#print(x)
+	
+	if event.is_action_pressed("right-click"):
+		Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
 		
 	if event.is_action_pressed("escape"):
-		close_requested.emit()
+		Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
+		#close_requested.emit()
 	
 	if event.is_action_pressed("adduv"):
-		
+		working_intersect = {}
+		working_pos = []
+		working_uvs = []
 		state = PickState.TEX
-		pass
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta: float) -> void:
@@ -117,7 +127,6 @@ func _process(delta: float) -> void:
 				pts.append(i * texture_rect.size)
 			var mp = get_mouse_position() - texture_rect.position
 			pts.append(mp)
-			print(pts)
 			polygon.polygon = pts
 		else:
 			polygon.polygon.clear()
@@ -181,21 +190,48 @@ func _on_viewport_container_input(event: InputEvent) -> void:
 						apply_texture()
 				else:
 					print("Click the same surface please!")
-				
-				
-func apply_texture():
+
+func get_2d(pt : Vector3, normal : Vector3):
+	var dots = [Vector3.UP, Vector3.LEFT, Vector3.FORWARD, Vector3.DOWN, Vector3.RIGHT, Vector3.BACK].map(normal.dot)
+	print(dots)
+	var ind = dots.find(dots.max())
 	
+	match ind:
+		0, 3:
+			return Vector2(pt.x, pt.z)
+		1, 4:
+			return Vector2(pt.y, pt.z)
+		2, 5:
+			return Vector2(pt.x, pt.y)
+		#3:
+			#return Vector2(pt.z, pt.x)
+		#4:
+			#return Vector2(pt.z, pt.y)
+		#5:
+			#return Vector2(pt.y, pt.x)
+	
+	#if normal.dot(Vector3.UP) > 0.99:
+		#return Vector2(pt.x, pt.z)
+	#elif abs(normal.dot(Vector3.LEFT)) > 0.99:
+		#return Vector2(pt.y, pt.z)
+	#elif abs(normal.dot(Vector3.FORWARD)) > 0.99:
+		#return Vector2(pt.x, pt.y)
+	#else:
+		#print("Damn. Can't do that, sorry")
+		#return -Vector2.INF
+
+
+func apply_texture():
 	var clicked_object : Node3D = working_intersect["collider"]
 	#var clicked_point : Vector3 = working_intersect["position"]
 	var clicked_normal : Vector3 = working_intersect["normal"]
 	for i in range(len(working_pos)):
 		print("associating uv ", working_uvs[i], " with 3d point ", working_pos[i])
 	#uv_list[uv] = clicked_point
-		
-	var material : StandardMaterial3D = texture_mat #.duplicate()
+	
+	var material : StandardMaterial3D = texture_mat.duplicate()
 	material.albedo_texture = texture_rect.texture
-	
-	
+
 	var new_mesh : ArrayMesh
 	var new_meshinstance : MeshInstance3D
 	
@@ -213,16 +249,30 @@ func apply_texture():
 	
 	var arrays = []
 	arrays.resize(ArrayMesh.ARRAY_MAX)
+	
+	var sort_2d = func(v1 : Vector3, v2 : Vector3):
+		var _v1 = get_2d(v1, clicked_normal)
+		var _v2 = get_2d(v2, clicked_normal)
+		
+		if _v1.x > _v2.x:
+			return true
+		else:
+			return _v1.y > _v2.y
+	
+	working_pos.sort_custom(sort_2d)
+	
 	arrays[ArrayMesh.ARRAY_TEX_UV] = PackedVector2Array(working_uvs)
-	arrays[ArrayMesh.ARRAY_VERTEX] = PackedVector3Array(working_pos)
+	arrays[ArrayMesh.ARRAY_VERTEX] = PackedVector3Array(working_pos.map(func(v): return v + clicked_normal * 0.05))
 	arrays[ArrayMesh.ARRAY_NORMAL] = PackedVector3Array([clicked_normal, clicked_normal, clicked_normal, clicked_normal])
 	
+	#var pos_2d = working_pos.map(_get_2d)
+	
 	# 0, 1, 2, 0, 2, 3
-	var indices = [2, 1, 0, 3, 2, 0] if clicked_normal.dot(Vector3.UP) > 0.95 else [0, 1, 2, 0, 2, 3]
-	arrays[ArrayMesh.ARRAY_INDEX] = PackedInt32Array(indices)
+	#var indices = [2, 1, 0, 3, 2, 0] # if clicked_normal.dot(Vector3.UP) > 0.95 else [0, 1, 2, 0, 2, 3]
+	#arrays[ArrayMesh.ARRAY_INDEX] = PackedInt32Array(indices)
 	
 	var surface_idx = new_mesh.get_surface_count()
-	new_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
+	new_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLE_STRIP, arrays)
 	new_mesh.surface_set_material(surface_idx, material)
 	
 	
@@ -235,7 +285,7 @@ func apply_texture():
 	#new_plane_mesh.quaternion = Quaternion(clicked_normal, 0.0)
 	#new_meshinstance.look_at_from_position(center, center + Vector3.FORWARD, clicked_normal)
 	#new_meshinstance.rotate(clicked_normal.cross(Vector3.UP), PI / 2.0)
-	new_meshinstance.position += clicked_normal * 0.05
+	#new_meshinstance.position += clicked_normal * 0.05
 	#new_meshinstance.set_surface_override_material(0, material)
 		#new_plane_mesh.po
 	
@@ -245,15 +295,16 @@ func apply_texture():
 	working_uvs = []
 
 func list_item_clicked(index : int):
-	var new_mat : Material
-	if index in selected_indices:
-		new_mat = texture_mat
-		selected_indices.erase(index)
-	else:
-		new_mat = highlight_mat
-		selected_indices[index] = 1
-		
-	var mesh : ArrayMesh = uv_pos_list[index][2]
-	var surface_idx = uv_pos_list[index][3]
-	new_mat.albedo_texture = texture_rect.texture
-	mesh.surface_set_material(surface_idx, new_mat)
+	return
+	#var new_mat : Material
+	#if index in selected_indices:
+		#new_mat = texture_mat
+		#selected_indices.erase(index)
+	#else:
+		#new_mat = highlight_mat
+		#selected_indices[index] = 1
+		#
+	#var mesh : ArrayMesh = uv_pos_list[index][2]
+	#var surface_idx = uv_pos_list[index][3]
+	#new_mat.albedo_texture = texture_rect.texture
+	#mesh.surface_set_material(surface_idx, new_mat)
