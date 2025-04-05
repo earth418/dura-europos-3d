@@ -178,37 +178,37 @@ func _on_viewport_container_input(event: InputEvent) -> void:
 	#var root = $Control2/SubViewportContainer/SubViewport/Node3D
 	#var camera = root.get_node("FreeLookCamera")
 	if event.is_action_pressed("left-click") and state == PickState.VIEWPORT:
-			var intersect = get_mouse_point()
-			if intersect:
-				if not working_intersect:
-					working_intersect = intersect
-				
-				if intersect["normal"].dot(working_intersect["normal"]) > 0.95:
-					working_pos.append(intersect["position"])
-					print(len(working_pos), " points clicked out of 4!!")
-					if len(working_pos) == 4:
-						apply_texture()
-				else:
-					print("Click the same surface please!")
+		var intersect = get_mouse_point()
+		if intersect:
+			if not working_intersect:
+				working_intersect = intersect
+			
+			if intersect["normal"].dot(working_intersect["normal"]) > 0.95:
+				working_pos.append(intersect["position"])
+				print(len(working_pos), " points clicked out of 4!!")
+				if len(working_pos) == 4:
+					apply_texture()
+			else:
+				print("Click the same surface please!")
 
 func get_2d(pt : Vector3, normal : Vector3):
 	var dots = [Vector3.UP, Vector3.LEFT, Vector3.FORWARD, Vector3.DOWN, Vector3.RIGHT, Vector3.BACK].map(normal.dot)
-	print(dots)
+	#print(dots)
 	var ind = dots.find(dots.max())
 	
 	match ind:
-		0, 3:
+		0:
 			return Vector2(pt.x, pt.z)
-		1, 4:
+		1:
 			return Vector2(pt.y, pt.z)
-		2, 5:
+		2:
 			return Vector2(pt.x, pt.y)
-		#3:
-			#return Vector2(pt.z, pt.x)
-		#4:
-			#return Vector2(pt.z, pt.y)
-		#5:
-			#return Vector2(pt.y, pt.x)
+		3:
+			return Vector2(pt.z, pt.x)
+		4:
+			return Vector2(pt.z, pt.y)
+		5:
+			return Vector2(pt.y, pt.x)
 	
 	#if normal.dot(Vector3.UP) > 0.99:
 		#return Vector2(pt.x, pt.z)
@@ -248,26 +248,57 @@ func apply_texture():
 		clicked_object.add_child(new_meshinstance)
 	
 	var arrays = []
+	
+	var planemesh = PlaneMesh.new()
+	var plane_arrays = planemesh.get_mesh_arrays()
+	#ArrayMesh.new()
+	
 	arrays.resize(ArrayMesh.ARRAY_MAX)
 	
 	var sort_2d = func(v1 : Vector3, v2 : Vector3):
 		var _v1 = get_2d(v1, clicked_normal)
 		var _v2 = get_2d(v2, clicked_normal)
 		
-		if _v1.x > _v2.x:
+		if _v1.x < _v2.x:
 			return true
 		else:
-			return _v1.y > _v2.y
+			return _v1.y < _v2.y
 	
 	working_pos.sort_custom(sort_2d)
+	
+	#	[(1.0, 0.0, 1.0), (-1.0, 0.0, 1.0), (1.0, 0.0, -1.0), (-1.0, 0.0, -1.0)]
+	
+	var area = -1.0
+	var triangle_1 = [2, 1, 0]
+	
+	while area < 0:
+		triangle_1.shuffle()
+		var t1v1 = working_pos[triangle_1[0]] - working_pos[triangle_1[1]]
+		var t1v2 = working_pos[triangle_1[1]] - working_pos[triangle_1[2]]
+		
+		area = t1v1.cross(t1v2).dot(clicked_normal) # 2x area
+		
+		#if area < 0:
+			#triangle_1.reverse()
+	
+	var triangle_2 = [3, 0, 2]
+	
+	area = -1
+	while area < 0:
+		triangle_2.shuffle()
+		var t2v1 = working_pos[triangle_2[0]] - working_pos[triangle_2[1]]
+		var t2v2 = working_pos[triangle_2[1]] - working_pos[triangle_2[2]]
+		
+		area = t2v1.cross(t2v2).dot(clicked_normal) # 2x area
 	
 	arrays[ArrayMesh.ARRAY_TEX_UV] = PackedVector2Array(working_uvs)
 	arrays[ArrayMesh.ARRAY_VERTEX] = PackedVector3Array(working_pos.map(func(v): return v + clicked_normal * 0.05))
 	arrays[ArrayMesh.ARRAY_NORMAL] = PackedVector3Array([clicked_normal, clicked_normal, clicked_normal, clicked_normal])
 	
 	#var pos_2d = working_pos.map(_get_2d)
-	
 	# 0, 1, 2, 0, 2, 3
+	
+	var indices = triangle_2 + triangle_1
 	#var indices = [2, 1, 0, 3, 2, 0] # if clicked_normal.dot(Vector3.UP) > 0.95 else [0, 1, 2, 0, 2, 3]
 	#arrays[ArrayMesh.ARRAY_INDEX] = PackedInt32Array(indices)
 	
