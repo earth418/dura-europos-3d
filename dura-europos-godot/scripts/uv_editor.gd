@@ -204,11 +204,11 @@ func get_2d(pt : Vector3, normal : Vector3):
 		2:
 			return Vector2(pt.x, pt.y)
 		3:
-			return Vector2(pt.z, pt.x)
+			return Vector2(pt.x, -pt.z)
 		4:
-			return Vector2(pt.z, pt.y)
+			return Vector2(pt.z, -pt.y)
 		5:
-			return Vector2(pt.y, pt.x)
+			return Vector2(pt.y, -pt.x)
 	
 	#if normal.dot(Vector3.UP) > 0.99:
 		#return Vector2(pt.x, pt.z)
@@ -265,31 +265,32 @@ func apply_texture():
 			return _v1.y < _v2.y
 	
 	working_pos.sort_custom(sort_2d)
+	print(working_pos)
 	
 	#	[(1.0, 0.0, 1.0), (-1.0, 0.0, 1.0), (1.0, 0.0, -1.0), (-1.0, 0.0, -1.0)]
 	
-	var area = -1.0
-	var triangle_1 = [2, 1, 0]
-	
-	while area < 0:
-		triangle_1.shuffle()
-		var t1v1 = working_pos[triangle_1[0]] - working_pos[triangle_1[1]]
-		var t1v2 = working_pos[triangle_1[1]] - working_pos[triangle_1[2]]
-		
-		area = t1v1.cross(t1v2).dot(clicked_normal) # 2x area
-		
-		#if area < 0:
-			#triangle_1.reverse()
-	
-	var triangle_2 = [3, 0, 2]
-	
-	area = -1
-	while area < 0:
-		triangle_2.shuffle()
-		var t2v1 = working_pos[triangle_2[0]] - working_pos[triangle_2[1]]
-		var t2v2 = working_pos[triangle_2[1]] - working_pos[triangle_2[2]]
-		
-		area = t2v1.cross(t2v2).dot(clicked_normal) # 2x area
+	#var area = -1.0
+	#var triangle_1 = [2, 1, 0]
+	#
+	#while area < 0:
+		#triangle_1.shuffle()
+		#var t1v1 = working_pos[triangle_1[0]] - working_pos[triangle_1[1]]
+		#var t1v2 = working_pos[triangle_1[1]] - working_pos[triangle_1[2]]
+		#
+		#area = t1v1.cross(t1v2).dot(clicked_normal) # 2x area
+		#
+		##if area < 0:
+			##triangle_1.reverse()
+	#
+	#var triangle_2 = [3, 0, 2]
+	#
+	#area = -1
+	#while area < 0:
+		#triangle_2.shuffle()
+		#var t2v1 = working_pos[triangle_2[0]] - working_pos[triangle_2[1]]
+		#var t2v2 = working_pos[triangle_2[1]] - working_pos[triangle_2[2]]
+		#
+		#area = t2v1.cross(t2v2).dot(clicked_normal) # 2x area
 	
 	arrays[ArrayMesh.ARRAY_TEX_UV] = PackedVector2Array(working_uvs)
 	arrays[ArrayMesh.ARRAY_VERTEX] = PackedVector3Array(working_pos.map(func(v): return v + clicked_normal * 0.05))
@@ -298,9 +299,11 @@ func apply_texture():
 	#var pos_2d = working_pos.map(_get_2d)
 	# 0, 1, 2, 0, 2, 3
 	
-	var indices = triangle_2 + triangle_1
-	#var indices = [2, 1, 0, 3, 2, 0] # if clicked_normal.dot(Vector3.UP) > 0.95 else [0, 1, 2, 0, 2, 3]
+	#var indices = triangle_2 + triangle_1
+	var indices = [2, 1, 0, 3, 2, 0] # if clicked_normal.dot(Vector3.UP) > 0.95 else [0, 1, 2, 0, 2, 3]
 	#arrays[ArrayMesh.ARRAY_INDEX] = PackedInt32Array(indices)
+	
+	#arrays[ArrayMesh.ARRAY_INDEX] = plane_arrays[ArrayMesh.ARRAY_INDEX]
 	
 	var surface_idx = new_mesh.get_surface_count()
 	new_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLE_STRIP, arrays)
