@@ -7,6 +7,8 @@ var httpr : HTTPRequest
 var loaded_picture : Image
 var loaded_picture_info = {}
 
+var custom_pictures = []
+
 @export var building_id : String = "":
 	set(new_id):
 		#if httpr:
@@ -15,6 +17,22 @@ var loaded_picture_info = {}
 
 func clear_list():
 	$ItemList.clear()
+
+func add_customs():
+	for i in custom_pictures:
+		pass
+
+func add_custom_image(image_id):
+	
+	var image_query = "https://query.wikidata.org/sparql?query=SELECT%20*%20%7Bwd%3A" +\
+	image_id + "%20wdt%3AP18%20%3Fimage.%7D%0A"
+	#"Q122677095" +\
+	
+	if httpr.request_completed.is_connected(_building_request_completed):
+		httpr.request_completed.disconnect(_building_request_completed)
+	httpr.request_completed.connect(_image_request_completed)
+	
+	httpr.request(image_query, ["Accept: application/sparql-results+json"], HTTPClient.METHOD_GET)
 
 func get_pics_depicting_building(building_id):
 	

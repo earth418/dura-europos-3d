@@ -13,6 +13,7 @@ func _ready() -> void:
 #
 ## Called every frame. 'delta' is the elapsed time since the previous frame.
 
+
 func get_pointed_object():
 	
 	var rc = $Camera3D/RayCast3D
@@ -31,10 +32,11 @@ func _process(delta: float) -> void:
 	
 	if last_looked_at and last_looked_at != selected_object:
 		last_looked_at.material = white_mat
+		$Camera3D/Control/FocusedInfo/RichTextLabel.text = ""
+	
 	if new_obj and new_obj != selected_object:
 		new_obj.material = highlight_mat
-		var id = new_obj.get_building_id()
-		$Camera3D/Control/FocusedInfo/RichTextLabel.text = "Object displayed: " + id
+		$Camera3D/Control/FocusedInfo/RichTextLabel.text = "Object displayed: " + new_obj.get_building_id()
 	last_looked_at = new_obj
 	
 	#var v = get_viewport()
@@ -178,7 +180,7 @@ func _on_focus_button_pressed() -> void:
 		return
 	
 	if selecting:
-		wikigallery.find_child("ItemList").clear()
+		wikigallery.clear_list()
 		#$Camera3D/Control/FocusedInfo/WikiGallery/ItemList.clear()
 		focus_on_object(selected_object)
 	else:
@@ -193,3 +195,9 @@ func _on_focus_button_pressed() -> void:
 		#$Camera3D.anchor_transform = Transform3D(Basis(), selected_object.mesh_location)
 
 	selecting = !selecting
+
+
+func _on_image_entry_text_submitted(new_text: String) -> void:
+	
+	
+	pass # Replace with function body.

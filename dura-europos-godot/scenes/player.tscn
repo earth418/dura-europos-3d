@@ -124,7 +124,7 @@ offset_bottom = -0.240005
 grow_horizontal = 0
 theme_override_font_sizes/normal_font_size = 20
 
-[node name="LineEdit" type="LineEdit" parent="Camera3D/Control/FocusedInfo"]
+[node name="image_entry" type="LineEdit" parent="Camera3D/Control/FocusedInfo"]
 layout_mode = 1
 anchors_preset = -1
 anchor_right = 0.2
@@ -151,3 +151,4 @@ offset_right = 40.0
 offset_bottom = 40.0
 
 [connection signal="item_clicked" from="Camera3D/Control/FocusedInfo/WikiGallery/ItemList" to="Camera3D/Control/FocusedInfo/WikiGallery" method="_on_item_clicked"]
+[connection signal="text_submitted" from="Camera3D/Control/FocusedInfo/image_entry" to="." method="_on_image_entry_text_submitted"]
