@@ -50,8 +50,6 @@ func _ready() -> void:
 	if _object:
 		camera.anchor_transform = Transform3D(Basis(), _object.mesh_location)
 		#new_obj : GeoJSON_Mesh = _object.duplicate()
-		#new_obj = _object.duplicate(DUPLICATE_SCRIPTS | DUPLICATE_GROUPS | DUPLICATE_SIGNALS)
-		#add_child(new_obj)
 		#_object.global_position = -_object.mesh_location
 		#camera.anchor_transform = Transform3D(Basis(), _object.mesh_location)
 		#_object.generate_collisions = true
@@ -60,11 +58,7 @@ func _ready() -> void:
 		#new_obj = geojson_mesh.instantiate()
 		#new_obj.json_path = _object.json_path
 		#add_child(new_obj)
-		#new_obj.generate_collisions = true
-		#new_obj.load_json_file(_object.json_path)
-		#print(new_obj.json_contents)
 		#new_obj.generate_geojson_mesh()
-		##_object.refresh = true
 		#
 		#
 		#print(new_obj)
@@ -76,8 +70,8 @@ func _ready() -> void:
 	#new_world.add_child(new_obj)
 	if _picture:
 		(texture_rect.texture as ImageTexture).set_image(_picture)
-	#else:
-		#texture_rect.texture = load("res://assets/satellite_color_square.png")
+	else:
+		texture_rect.texture = load("res://assets/satellite_color_square.png")
 	#
 	uv_itemlist.item_selected.connect(list_item_clicked)
 	uv_itemlist.gui_input.connect(list_item_input)
@@ -114,6 +108,11 @@ func _input(event: InputEvent) -> void:
 		working_pos = []
 		working_uvs = []
 		state = PickState.TEX
+
+	if event.is_action_pressed("save"):
+		var f = FileDialog.new()
+		#f.
+
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta: float) -> void:
@@ -220,9 +219,21 @@ func get_2d(pt : Vector3, normal : Vector3):
 		#print("Damn. Can't do that, sorry")
 		#return -Vector2.INF
 
+func save_to_file(object, path):
+	
+	# from godot wiki
+	var gltf_document_save = GLTFDocument.new()
+	var gltf_state_save = GLTFState.new()
+	
+	gltf_document_save.append_from_scene(object, gltf_state_save)
+	gltf_document_save.write_to_filesystem(gltf_state_save, path)
 
 func apply_texture():
 	var clicked_object : Node3D = working_intersect["collider"]
+	if clicked_object != object:
+		print("Object changed!")
+		object = clicked_object
+	
 	#var clicked_point : Vector3 = working_intersect["position"]
 	var clicked_normal : Vector3 = working_intersect["normal"]
 	for i in range(len(working_pos)):
@@ -249,48 +260,54 @@ func apply_texture():
 	
 	var arrays = []
 	
-	var planemesh = PlaneMesh.new()
-	var plane_arrays = planemesh.get_mesh_arrays()
-	#ArrayMesh.new()
-	
+	#var planemesh = PlaneMesh.new()
+	#var plane_arrays = planemesh.get_mesh_arrays()
+	##ArrayMesh.new()
+	#
 	arrays.resize(ArrayMesh.ARRAY_MAX)
 	
-	var sort_2d = func(v1 : Vector3, v2 : Vector3):
-		var _v1 = get_2d(v1, clicked_normal)
-		var _v2 = get_2d(v2, clicked_normal)
-		
-		if _v1.x < _v2.x:
-			return true
-		else:
-			return _v1.y < _v2.y
-	
-	working_pos.sort_custom(sort_2d)
-	print(working_pos)
+	#var sort_2d = func(v1 : Vector3, v2 : Vector3):
+		#var _v1 = get_2d(v1, clicked_normal)
+		#var _v2 = get_2d(v2, clicked_normal)
+		#
+		#if _v1.x < _v2.x:
+			#return true
+		#else:
+			#return _v1.y < _v2.y
+	#
+	#working_pos.sort_custom(sort_2d)
+	#print(working_pos)
 	
 	#	[(1.0, 0.0, 1.0), (-1.0, 0.0, 1.0), (1.0, 0.0, -1.0), (-1.0, 0.0, -1.0)]
 	
 	#var area = -1.0
-	#var triangle_1 = [2, 1, 0]
-	#
-	#while area < 0:
-		#triangle_1.shuffle()
-		#var t1v1 = working_pos[triangle_1[0]] - working_pos[triangle_1[1]]
-		#var t1v2 = working_pos[triangle_1[1]] - working_pos[triangle_1[2]]
-		#
-		#area = t1v1.cross(t1v2).dot(clicked_normal) # 2x area
-		#
-		##if area < 0:
-			##triangle_1.reverse()
-	#
-	#var triangle_2 = [3, 0, 2]
-	#
+	var triangle_1 = [2, 1, 0]
+	
+	#triangle_1.shuffle()
+	var t1v1 = working_pos[triangle_1[0]] - working_pos[triangle_1[1]]
+	var t1v2 = working_pos[triangle_1[1]] - working_pos[triangle_1[2]]
+	
+	var result = t1v1.cross(t1v2).normalized().dot(clicked_normal) # 2x area
+	print("dot prdouct t1: ", result)
+	
+	if result > 0: # cross
+		triangle_1.reverse()
+
+	var triangle_2 = [3, 0, 2]
+	
 	#area = -1
 	#while area < 0:
 		#triangle_2.shuffle()
-		#var t2v1 = working_pos[triangle_2[0]] - working_pos[triangle_2[1]]
-		#var t2v2 = working_pos[triangle_2[1]] - working_pos[triangle_2[2]]
-		#
-		#area = t2v1.cross(t2v2).dot(clicked_normal) # 2x area
+	var t2v1 = working_pos[triangle_2[0]] - working_pos[triangle_2[1]]
+	var t2v2 = working_pos[triangle_2[1]] - working_pos[triangle_2[2]]
+	
+	result = t2v1.cross(t2v2).normalized().dot(clicked_normal) # 2x area
+	
+	if result > 0: # cross
+		triangle_2.reverse()
+	
+	print("dot prdouct t2: ", result)
+	
 	
 	arrays[ArrayMesh.ARRAY_TEX_UV] = PackedVector2Array(working_uvs)
 	arrays[ArrayMesh.ARRAY_VERTEX] = PackedVector3Array(working_pos.map(func(v): return v + clicked_normal * 0.05))
@@ -299,14 +316,14 @@ func apply_texture():
 	#var pos_2d = working_pos.map(_get_2d)
 	# 0, 1, 2, 0, 2, 3
 	
-	#var indices = triangle_2 + triangle_1
-	var indices = [2, 1, 0, 3, 2, 0] # if clicked_normal.dot(Vector3.UP) > 0.95 else [0, 1, 2, 0, 2, 3]
-	#arrays[ArrayMesh.ARRAY_INDEX] = PackedInt32Array(indices)
+	var indices =  triangle_1 + triangle_2
+	#var indices = [2, 1, 0, 3, 2, 0] # if clicked_normal.dot(Vector3.UP) > 0.95 else [0, 1, 2, 0, 2, 3]
+	arrays[ArrayMesh.ARRAY_INDEX] = PackedInt32Array(indices)
 	
 	#arrays[ArrayMesh.ARRAY_INDEX] = plane_arrays[ArrayMesh.ARRAY_INDEX]
 	
 	var surface_idx = new_mesh.get_surface_count()
-	new_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLE_STRIP, arrays)
+	new_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
 	new_mesh.surface_set_material(surface_idx, material)
 	
 	
