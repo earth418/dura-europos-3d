@@ -32,7 +32,7 @@ var uv_pos_list : Array = []
 
 @onready var geojson_mesh = preload("res://scenes/geoJSON_mesh.tscn")
 @onready var texture_mat  = preload("res://materials/white_standard_mat.tres")
-@onready var highlight_mat = preload("res://materials/white_highlight_mat.tres")
+@onready var highlight_mat = preload("res://materials/tex_highlight_mat.tres")
 
 @export var object : Node
 
@@ -43,19 +43,19 @@ func _ready() -> void:
 	$Control2/SubViewportContainer/SubViewport.size = $Control2.size * Vector2(0.5, 1.0)
 	grab_focus()
 	#var pos = Vector3(0, 0.0, 0)
-	#camera.anchor_transform = Transform3D(Basis(), _object.center_loc)
 	#world_3d = World3D.new()
 	
 	var new_obj : GeoJSON_Mesh
 	
 	if _object:
+		camera.anchor_transform = Transform3D(Basis(), _object.mesh_location)
 		#new_obj : GeoJSON_Mesh = _object.duplicate()
 		#new_obj = _object.duplicate(DUPLICATE_SCRIPTS | DUPLICATE_GROUPS | DUPLICATE_SIGNALS)
 		#add_child(new_obj)
-		_object.global_position = -_object.mesh_location
+		#_object.global_position = -_object.mesh_location
 		#camera.anchor_transform = Transform3D(Basis(), _object.mesh_location)
-		_object.generate_collisions = true
-		_object.refresh = true
+		#_object.generate_collisions = true
+		#_object.refresh = true
 		#print("Adding object...")
 		#new_obj = geojson_mesh.instantiate()
 		#new_obj.json_path = _object.json_path
@@ -76,11 +76,11 @@ func _ready() -> void:
 	#new_world.add_child(new_obj)
 	if _picture:
 		(texture_rect.texture as ImageTexture).set_image(_picture)
-	else:
-		texture_rect.texture = load("res://assets/satellite_color_square.png")
-	
+	#else:
+		#texture_rect.texture = load("res://assets/satellite_color_square.png")
+	#
 	uv_itemlist.item_selected.connect(list_item_clicked)
-
+	uv_itemlist.gui_input.connect(list_item_input)
 
 enum PickState {TEX, VIEWPORT, DONE}
 var state : PickState = PickState.DONE
@@ -329,16 +329,40 @@ func apply_texture():
 	working_uvs = []
 
 func list_item_clicked(index : int):
-	return
+	#return
 	#var new_mat : Material
-	#if index in selected_indices:
-		#new_mat = texture_mat
-		#selected_indices.erase(index)
-	#else:
-		#new_mat = highlight_mat
-		#selected_indices[index] = 1
-		#
-	#var mesh : ArrayMesh = uv_pos_list[index][2]
-	#var surface_idx = uv_pos_list[index][3]
-	#new_mat.albedo_texture = texture_rect.texture
-	#mesh.surface_set_material(surface_idx, new_mat)
+	var new_color : Color 
+	if index in selected_indices:
+		#new_mat = texture_mat.duplicate()
+		new_color = Color.WHITE
+		selected_indices.erase(index)
+		print("De-selecting item ", index)
+	else:
+		#new_mat = highlight_mat.duplicate()
+		new_color = Color.RED
+		selected_indices[index] = 1
+		print("Selecting item ", index)
+		
+	var mesh : ArrayMesh = uv_pos_list[index][2]
+	var surf_idx = uv_pos_list[index][3]
+	
+	var mat : StandardMaterial3D = mesh.surface_get_material(surf_idx)
+	mat.albedo_color = new_color
+	#mat.emission = new_color
+
+func list_item_input(event: InputEvent):
+	
+	if event is InputEventKey and event.pressed:
+		if event.keycode == KEY_DELETE or event.keycode == KEY_BACKSPACE:
+			for index in selected_indices:
+				#print("Deleting object ", index, " out of ", len(uv_pos_list))
+				var info = uv_pos_list.pop_at(index)
+				uv_itemlist.remove_item(index)
+				var mesh : ArrayMesh = info[2]
+				var idx = info[3]
+				mesh.surface_remove(idx)
+				selected_indices.erase(index)
+				
+				for uvpos_item in uv_pos_list:
+					if uvpos_item[3] > idx:
+						uvpos_item[3] -= 1

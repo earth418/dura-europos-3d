@@ -31,6 +31,9 @@ func load_json_file(json_filepath):
 		load_json_file(json_filepath)
 		json_path = json_filepath
 
+func get_building_id():
+	return json_path.split("/")[-1].split(".")[0]
+
 @export var refresh : bool:
 	set(new_val):
 		load_json_file(json_path)
@@ -191,7 +194,7 @@ func generate_geojson_mesh():
 				(new_collision.shape as BoxShape3D).size = Vector3(xscale, height_scale, 1.0)
 				new_collision.global_position = (loc1 + loc2) / 2 + Vector3(0, height_scale, 0)
 				new_collision.quaternion = Quaternion(Vector3.UP, -yaw)
-				print("new collision loc: ", new_collision.global_position)
+				#print("new collision loc: ", new_collision.global_position)
 			
 			var new_cube : MeshInstance3D = $cube.duplicate()
 			mesh_parent.add_child(new_cube)
@@ -217,6 +220,16 @@ func generate_geojson_mesh():
 			$CollisionShape3D.global_position = (emax + emin) / 2
 
 		mesh_location = (emax + emin) / 2
+		
+		var id_display : TextMesh = TextMesh.new()
+		id_display.font_size = 500
+		#id_display.width = 2500
+		id_display.pixel_size = 0.05
+		id_display.text = get_building_id()
+		var meshinstance = MeshInstance3D.new()
+		meshinstance.mesh = id_display
+		mesh_parent.add_child(meshinstance)
+		meshinstance.global_position = mesh_location + Vector3.UP * 20
 		#var shape : ConvexPolygonShape3D = $CollisionShape3D.shape as ConvexPolygonShape3D
 		#if shape == null:
 			#shape = ConcavePolygonShape3D.new()

@@ -1,6 +1,6 @@
 [gd_resource type="ShaderMaterial" load_steps=2 format=3 uid="uid://ddrv5bfbsvg0p"]
 
-[ext_resource type="Shader" path="res://materials/outline.gdshader" id="1_mmth7"]
+[ext_resource type="Shader" uid="uid://b1gjkjgx4qrp6" path="res://materials/outline.gdshader" id="1_mmth7"]
 
 [resource]
 render_priority = 0
@@ -8,4 +8,4 @@ shader = ExtResource("1_mmth7")
 shader_parameter/normal_threshold = 0.1
 shader_parameter/depth_threshold = 0.05
 shader_parameter/depth_artifact_correction_coef = 2.0
-shader_parameter/outline_color = Color(1, 1, 0, 1)
+shader_parameter/outline_color = Color(0.853079, 0.880624, 0.302143, 1)

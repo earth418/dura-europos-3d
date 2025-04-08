@@ -79,8 +79,6 @@ func _ready() -> void:
 	httpr.request_completed.connect(_building_request_completed)
 	
 	#get_pics_depicting_building("Q116950453")
-	
-	#pass # Replace with function body.
 
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
@@ -97,6 +95,8 @@ func _on_item_clicked(index: int, at_position: Vector2, mouse_button_index: int)
 	
 	print(url)
 	loaded_picture_info = associated_pics[index]
+	print(loaded_picture_info)
 	httpr.request(url)
 	
-	#pass # Replace with function body.
+	$info_eg.text = "" # set to english description of image
+	$info_ar.text = "" # set to arabic description of image

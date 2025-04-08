@@ -12,3 +12,4 @@ shader_parameter/outline_color = Color(0, 0, 0, 1)
 
 [resource]
 next_pass = SubResource("ShaderMaterial_hq1ny")
+albedo_color = Color(0.807843, 0.756863, 0.619608, 1)

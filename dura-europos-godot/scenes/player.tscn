@@ -4,9 +4,6 @@
 [ext_resource type="Script" uid="uid://bqim8t2aait7r" path="res://scripts/freelook_orbit_camera.gd" id="2_fkgpm"]
 [ext_resource type="Script" uid="uid://b4yv8jihw3q4o" path="res://scripts/picture_gallery.gd" id="3_wjey4"]
 
-[sub_resource type="Theme" id="Theme_a5i7w"]
-default_font_size = 50
-
 [sub_resource type="ImageTexture" id="ImageTexture_0nox0"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ms15b"]
@@ -19,6 +16,9 @@ border_width_top = 8
 border_width_right = 8
 border_width_bottom = 8
 border_blend = true
+
+[sub_resource type="Theme" id="Theme_a5i7w"]
+default_font_size = 50
 
 [node name="Player" type="Node3D"]
 script = ExtResource("1_cu3ye")
@@ -42,37 +42,9 @@ grow_vertical = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 
-[node name="Instructions" type="RichTextLabel" parent="Camera3D/Control"]
-layout_mode = 1
-anchors_preset = 1
-anchor_left = 1.0
-anchor_right = 1.0
-offset_left = -331.0
-offset_bottom = 87.0
-grow_horizontal = 0
-theme = SubResource("Theme_a5i7w")
-
-[node name="TextEdit" type="TextEdit" parent="Camera3D/Control"]
-visible = false
-layout_mode = 0
-offset_left = 54.0
-offset_top = 109.0
-offset_right = 638.0
-offset_bottom = 220.0
-editable = false
-
-[node name="TextureRect" type="TextureRect" parent="Camera3D/Control"]
-visible = false
-layout_mode = 0
-offset_left = 53.0
-offset_top = 255.0
-offset_right = 604.0
-offset_bottom = 606.0
-expand_mode = 5
-
 [node name="FocusedInfo" type="Control" parent="Camera3D/Control"]
 layout_mode = 1
-anchors_preset = 15
+anchor_top = 0.5
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
@@ -80,7 +52,7 @@ grow_vertical = 2
 
 [node name="WikiGallery" type="Control" parent="Camera3D/Control/FocusedInfo"]
 layout_mode = 1
-anchor_top = 0.556
+anchor_top = 0.1
 anchor_right = 1.0
 anchor_bottom = 1.0
 offset_top = -0.480042
@@ -91,7 +63,7 @@ script = ExtResource("3_wjey4")
 [node name="TextureRect" type="TextureRect" parent="Camera3D/Control/FocusedInfo/WikiGallery"]
 layout_mode = 1
 anchors_preset = -1
-anchor_left = 0.667
+anchor_left = 0.65
 anchor_right = 1.0
 anchor_bottom = 1.0
 offset_left = -0.640137
@@ -103,50 +75,79 @@ expand_mode = 3
 [node name="ItemList" type="ItemList" parent="Camera3D/Control/FocusedInfo/WikiGallery"]
 layout_mode = 1
 anchors_preset = -1
-anchor_right = 0.417
+anchor_right = 0.4
 anchor_bottom = 1.0
 offset_right = -0.640076
 grow_vertical = 0
 theme_override_colors/font_color = Color(0, 0, 0, 1)
 theme_override_styles/panel = SubResource("StyleBoxFlat_ms15b")
 
-[node name="RichTextLabel" type="RichTextLabel" parent="Camera3D/Control/FocusedInfo/WikiGallery"]
-visible = false
+[node name="info_eg" type="RichTextLabel" parent="Camera3D/Control/FocusedInfo/WikiGallery"]
 layout_mode = 1
 anchors_preset = -1
-anchor_left = 0.417
-anchor_right = 0.667
-anchor_bottom = 1.0
-offset_left = -0.640076
-offset_right = -0.640137
+anchor_left = 0.4
+anchor_right = 0.65
+anchor_bottom = 0.5
 grow_horizontal = 2
 grow_vertical = 0
 theme_override_font_sizes/normal_font_size = 24
 theme_override_styles/background = SubResource("StyleBoxFlat_0cxdm")
 text = "English
 Picture title: Wall0046 Baptistery, Christian house church
-Picture description: wall portion on the east-facing exterior side of the baptismal font from the Baptistery, Christian House Chruch, Dura-Europos
-العربية
+Picture description: wall portion on the east-facing exterior side of the baptismal font from the Baptistery, Christian House Chruch, Dura-Europos"
+fit_content = true
+
+[node name="info_ar" type="RichTextLabel" parent="Camera3D/Control/FocusedInfo/WikiGallery"]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.4
+anchor_top = 0.5
+anchor_right = 0.65
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_font_sizes/normal_font_size = 24
+theme_override_styles/background = SubResource("StyleBoxFlat_0cxdm")
+text = "العربية
 عنوان الصورة: حيطة 46 معمودية, كنيسة-بيت المسيجي
 وصف الصورة: جزء من الحيطة على الجانب الشرقي الخارجي من المعمودية "
 fit_content = true
 
-[node name="instruction" type="RichTextLabel" parent="Camera3D/Control/FocusedInfo"]
+[node name="RichTextLabel" type="RichTextLabel" parent="Camera3D/Control/FocusedInfo"]
 layout_mode = 1
-offset_right = 360.0
-offset_bottom = 360.0
+anchors_preset = -1
+anchor_left = 0.75
+anchor_right = 1.0
+anchor_bottom = 0.1
+offset_left = -0.52002
+offset_bottom = -0.240005
+grow_horizontal = 0
+theme_override_font_sizes/normal_font_size = 20
+
+[node name="LineEdit" type="LineEdit" parent="Camera3D/Control/FocusedInfo"]
+layout_mode = 1
+anchors_preset = -1
+anchor_right = 0.2
+anchor_bottom = 0.1
+placeholder_text = "Enter image ID here.... (e.x. Q12482305)"
+
+[node name="instruction" type="RichTextLabel" parent="Camera3D/Control"]
+layout_mode = 1
+anchors_preset = -1
+anchor_right = 0.3
+anchor_bottom = 0.2
+offset_right = 0.319946
+offset_bottom = 0.519989
 theme = SubResource("Theme_a5i7w")
-theme_override_font_sizes/normal_font_size = 18
+theme_override_font_sizes/normal_font_size = 24
 text = "Press F while building is clicked to focus
-Press G while image clicked to edit UV
+Press G while image clicked to overlay textures
 Right click to deselect"
 
-[node name="RichTextLabel" type="RichTextLabel" parent="Camera3D/Control/FocusedInfo"]
-layout_mode = 0
-offset_left = 1455.0
-offset_top = 7.0
-offset_right = 1924.0
-offset_bottom = 118.0
-theme_override_font_sizes/normal_font_size = 20
+[node name="MainMenu" type="Control" parent="Camera3D/Control"]
+visible = false
+anchors_preset = 0
+offset_right = 40.0
+offset_bottom = 40.0
 
 [connection signal="item_clicked" from="Camera3D/Control/FocusedInfo/WikiGallery/ItemList" to="Camera3D/Control/FocusedInfo/WikiGallery" method="_on_item_clicked"]

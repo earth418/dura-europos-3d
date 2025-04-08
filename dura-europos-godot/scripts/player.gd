@@ -23,6 +23,8 @@ const white_mat = preload("res://materials/white_standard_mat.tres")
 const highlight_mat = preload("res://materials/white_highlight_mat.tres")
 const outline_mat = preload("res://materials/white_outline_mat.tres")
 
+
+
 var last_looked_at : GeoJSON_Mesh = null
 func _process(delta: float) -> void:
 	var new_obj = get_pointed_object() as GeoJSON_Mesh
@@ -31,6 +33,8 @@ func _process(delta: float) -> void:
 		last_looked_at.material = white_mat
 	if new_obj and new_obj != selected_object:
 		new_obj.material = highlight_mat
+		var id = new_obj.get_building_id()
+		$Camera3D/Control/FocusedInfo/RichTextLabel.text = "Object displayed: " + id
 	last_looked_at = new_obj
 	
 	#var v = get_viewport()
@@ -49,7 +53,7 @@ func display_info_for_object(obj):
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 	
 	var id = obj.json_path.split("/")[-1].split(".")[0]
-	$Camera3D/Control/FocusedInfo/RichTextLabel.text = id
+	$Camera3D/Control/FocusedInfo/RichTextLabel.text = "Object displayed: " + id
 	
 func un_display_object(obj):
 	if not obj:
@@ -159,7 +163,8 @@ func focus_on_object(obj):
 	#$Camera3D/Control/Button.text = "Click here to stop focusing on object"
 	
 	#$Camera3D/Control/WikiGallery.visible = true
-	var id = obj.json_path.split("/")[-1].split(".")[0]
+	#var id = obj.json_path.split("/")[-1].split(".")[0]
+	var id = (obj as GeoJSON_Mesh).get_building_id()
 	wikigallery.get_pics_depicting_building(id)
 
 

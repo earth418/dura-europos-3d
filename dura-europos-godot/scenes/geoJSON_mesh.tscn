@@ -11,7 +11,6 @@ material = ExtResource("2_ksk5i")
 [node name="GeoJSON_Mesh" type="Area3D"]
 script = ExtResource("1_dymuj")
 json_path = "res://assets/geojsons/Q3517541.geojson"
-generate_collisions = true
 
 [node name="walls_parent" type="Node3D" parent="."]
 

@@ -65,7 +65,7 @@ _surfaces = [{
 environment = SubResource("Environment_uvtsb")
 
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="WorldEnvironment"]
-transform = Transform3D(-0.866025, -0.0988287, 0.490136, 0, 0.980271, 0.197657, -0.5, 0.171176, -0.84894, 0, 0, 0)
+transform = Transform3D(-0.83867, -0.497165, 0.222393, 0, 0.40833, 0.912834, -0.544639, 0.765567, -0.342455, 0, 0, 0)
 shadow_enabled = true
 
 [node name="debug" type="Node3D" parent="."]
@@ -114,6 +114,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -257.09, 250, 152.518)
 
 [node name="GeoJSON_Meshes" type="Node3D" parent="."]
 script = ExtResource("6_17bpj")
+should_generate_collisions = true
 
 [node name="test" type="Node3D" parent="GeoJSON_Meshes"]
 
