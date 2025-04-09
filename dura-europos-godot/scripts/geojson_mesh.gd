@@ -221,15 +221,15 @@ func generate_geojson_mesh():
 
 		mesh_location = (emax + emin) / 2
 		
-		var id_display : TextMesh = TextMesh.new()
-		id_display.font_size = 500
-		#id_display.width = 2500
-		id_display.pixel_size = 0.05
-		id_display.text = get_building_id()
-		var meshinstance = MeshInstance3D.new()
-		meshinstance.mesh = id_display
-		mesh_parent.add_child(meshinstance)
-		meshinstance.global_position = mesh_location + Vector3.UP * 20
+		#var id_display : TextMesh = TextMesh.new()
+		#id_display.font_size = 500
+		##id_display.width = 2500
+		#id_display.pixel_size = 0.05
+		$text_mesh.mesh.text = get_building_id()
+		$text_mesh.global_position = mesh_location + Vector3.UP * 20
+		#var meshinstance = MeshInstance3D.new()
+		#meshinstance.mesh = id_display
+		#mesh_parent.add_child(meshinstance)
 		#var shape : ConvexPolygonShape3D = $CollisionShape3D.shape as ConvexPolygonShape3D
 		#if shape == null:
 			#shape = ConcavePolygonShape3D.new()

@@ -1,4 +1,4 @@
-[gd_scene load_steps=5 format=3 uid="uid://his6syakuyim"]
+[gd_scene load_steps=6 format=3 uid="uid://his6syakuyim"]
 
 [ext_resource type="Script" uid="uid://5xymt2yhv0ir" path="res://scripts/geojson_mesh.gd" id="1_dymuj"]
 [ext_resource type="Material" uid="uid://bfldl4fhspfuj" path="res://materials/white_standard_mat.tres" id="2_ksk5i"]
@@ -7,6 +7,13 @@
 material = ExtResource("2_ksk5i")
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_pjejb"]
+
+[sub_resource type="TextMesh" id="TextMesh_pjejb"]
+text = "Q1234567890
+"
+font_size = 24
+pixel_size = 0.1
+depth = 0.5
 
 [node name="GeoJSON_Mesh" type="Area3D"]
 script = ExtResource("1_dymuj")
@@ -20,3 +27,6 @@ mesh = SubResource("BoxMesh_nkt3r")
 [node name="CollisionShape3D" type="CollisionShape3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -411.786, 218.796, -325.089)
 shape = SubResource("BoxShape3D_pjejb")
+
+[node name="text_mesh" type="MeshInstance3D" parent="."]
+mesh = SubResource("TextMesh_pjejb")

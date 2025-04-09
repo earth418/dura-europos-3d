@@ -198,6 +198,4 @@ func _on_focus_button_pressed() -> void:
 
 
 func _on_image_entry_text_submitted(new_text: String) -> void:
-	
-	
-	pass # Replace with function body.
+	wikigallery.add_custom_image(new_text)

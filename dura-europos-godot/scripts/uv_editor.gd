@@ -49,6 +49,7 @@ func _ready() -> void:
 	
 	if _object:
 		camera.anchor_transform = Transform3D(Basis(), _object.mesh_location)
+		object = _object
 		#new_obj : GeoJSON_Mesh = _object.duplicate()
 		#_object.global_position = -_object.mesh_location
 		#camera.anchor_transform = Transform3D(Basis(), _object.mesh_location)
@@ -110,15 +111,17 @@ func _input(event: InputEvent) -> void:
 		state = PickState.TEX
 
 	if event.is_action_pressed("save"):
+		print("pressed ctrlS")
 		var f = FileDialog.new()
-		#f.
+		#f.use_native_dialog = true
+		add_child(f)
+		f.show()
 
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta: float) -> void:
 	if state == PickState.TEX:
 		#var panel : Panel = $Control2/TextureRect/Panel
-		
 		
 		if len(working_uvs) > 0:
 			var pts = PackedVector2Array()
@@ -182,42 +185,17 @@ func _on_viewport_container_input(event: InputEvent) -> void:
 			if not working_intersect:
 				working_intersect = intersect
 			
-			if intersect["normal"].dot(working_intersect["normal"]) > 0.95:
+			if intersect["normal"].dot(working_intersect["normal"]) > 0.95 and intersect["collider"] == object:
 				working_pos.append(intersect["position"])
 				print(len(working_pos), " points clicked out of 4!!")
 				if len(working_pos) == 4:
 					apply_texture()
 			else:
+				
+				#(object as GeoJSON_Mesh).get_building_id()
 				print("Click the same surface please!")
-
-func get_2d(pt : Vector3, normal : Vector3):
-	var dots = [Vector3.UP, Vector3.LEFT, Vector3.FORWARD, Vector3.DOWN, Vector3.RIGHT, Vector3.BACK].map(normal.dot)
-	#print(dots)
-	var ind = dots.find(dots.max())
-	
-	match ind:
-		0:
-			return Vector2(pt.x, pt.z)
-		1:
-			return Vector2(pt.y, pt.z)
-		2:
-			return Vector2(pt.x, pt.y)
-		3:
-			return Vector2(pt.x, -pt.z)
-		4:
-			return Vector2(pt.z, -pt.y)
-		5:
-			return Vector2(pt.y, -pt.x)
-	
-	#if normal.dot(Vector3.UP) > 0.99:
-		#return Vector2(pt.x, pt.z)
-	#elif abs(normal.dot(Vector3.LEFT)) > 0.99:
-		#return Vector2(pt.y, pt.z)
-	#elif abs(normal.dot(Vector3.FORWARD)) > 0.99:
-		#return Vector2(pt.x, pt.y)
-	#else:
-		#print("Damn. Can't do that, sorry")
-		#return -Vector2.INF
+				print("But ", object.get_building_id(), " was selected.")
+				print("You clicked ", intersect["collider"].get_building_id())
 
 func save_to_file(object, path):
 	
@@ -230,9 +208,9 @@ func save_to_file(object, path):
 
 func apply_texture():
 	var clicked_object : Node3D = working_intersect["collider"]
-	if clicked_object != object:
-		print("Object changed!")
-		object = clicked_object
+	#if clicked_object != object:
+		#print("Object should not change!")
+		#object = clicked_object
 	
 	#var clicked_point : Vector3 = working_intersect["position"]
 	var clicked_normal : Vector3 = working_intersect["normal"]
@@ -260,34 +238,14 @@ func apply_texture():
 	
 	var arrays = []
 	
-	#var planemesh = PlaneMesh.new()
-	#var plane_arrays = planemesh.get_mesh_arrays()
-	##ArrayMesh.new()
-	#
 	arrays.resize(ArrayMesh.ARRAY_MAX)
 	
-	#var sort_2d = func(v1 : Vector3, v2 : Vector3):
-		#var _v1 = get_2d(v1, clicked_normal)
-		#var _v2 = get_2d(v2, clicked_normal)
-		#
-		#if _v1.x < _v2.x:
-			#return true
-		#else:
-			#return _v1.y < _v2.y
-	#
-	#working_pos.sort_custom(sort_2d)
-	#print(working_pos)
-	
-	#	[(1.0, 0.0, 1.0), (-1.0, 0.0, 1.0), (1.0, 0.0, -1.0), (-1.0, 0.0, -1.0)]
-	
-	#var area = -1.0
 	var triangle_1 = [2, 1, 0]
 	
-	#triangle_1.shuffle()
 	var t1v1 = working_pos[triangle_1[0]] - working_pos[triangle_1[1]]
 	var t1v2 = working_pos[triangle_1[1]] - working_pos[triangle_1[2]]
 	
-	var result = t1v1.cross(t1v2).normalized().dot(clicked_normal) # 2x area
+	var result = t1v1.cross(t1v2).normalized().dot(clicked_normal) # is triangle pointing normal
 	print("dot prdouct t1: ", result)
 	
 	if result > 0: # cross
@@ -295,13 +253,10 @@ func apply_texture():
 
 	var triangle_2 = [3, 0, 2]
 	
-	#area = -1
-	#while area < 0:
-		#triangle_2.shuffle()
 	var t2v1 = working_pos[triangle_2[0]] - working_pos[triangle_2[1]]
 	var t2v2 = working_pos[triangle_2[1]] - working_pos[triangle_2[2]]
 	
-	result = t2v1.cross(t2v2).normalized().dot(clicked_normal) # 2x area
+	result = t2v1.cross(t2v2).normalized().dot(clicked_normal) # is triangle pointing normal
 	
 	if result > 0: # cross
 		triangle_2.reverse()
@@ -317,10 +272,7 @@ func apply_texture():
 	# 0, 1, 2, 0, 2, 3
 	
 	var indices =  triangle_1 + triangle_2
-	#var indices = [2, 1, 0, 3, 2, 0] # if clicked_normal.dot(Vector3.UP) > 0.95 else [0, 1, 2, 0, 2, 3]
 	arrays[ArrayMesh.ARRAY_INDEX] = PackedInt32Array(indices)
-	
-	#arrays[ArrayMesh.ARRAY_INDEX] = plane_arrays[ArrayMesh.ARRAY_INDEX]
 	
 	var surface_idx = new_mesh.get_surface_count()
 	new_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
@@ -330,15 +282,6 @@ func apply_texture():
 	
 	uv_pos_list.append([working_uvs, working_pos, new_mesh, surface_idx])
 	uv_itemlist.add_item("Decal " + str(uv_itemlist.item_count + 1))
-	
-	#new_plane_mesh.basis.from_euler()
-	#new_plane_mesh.global_position = center
-	#new_plane_mesh.quaternion = Quaternion(clicked_normal, 0.0)
-	#new_meshinstance.look_at_from_position(center, center + Vector3.FORWARD, clicked_normal)
-	#new_meshinstance.rotate(clicked_normal.cross(Vector3.UP), PI / 2.0)
-	#new_meshinstance.position += clicked_normal * 0.05
-	#new_meshinstance.set_surface_override_material(0, material)
-		#new_plane_mesh.po
 	
 	state = PickState.DONE
 	working_intersect = {}

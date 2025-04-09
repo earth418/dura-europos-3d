@@ -1,10 +1,9 @@
-[gd_scene load_steps=16 format=3 uid="uid://5oublp10f2kf"]
+[gd_scene load_steps=15 format=3 uid="uid://5oublp10f2kf"]
 
 [ext_resource type="Script" uid="uid://bqim8t2aait7r" path="res://scripts/freelook_orbit_camera.gd" id="1_pp1h4"]
 [ext_resource type="Script" uid="uid://cvnvmfn542kch" path="res://scenes/uv_edtiing.gd" id="2_mml1y"]
 [ext_resource type="Shader" uid="uid://38fb0hrncjqw" path="res://materials/gpu_depth.gdshader" id="3_tdpqq"]
 [ext_resource type="Material" uid="uid://do11q1h1adv05" path="res://addons/vertex_painter/shaders/vertex_color.tres" id="4_br65t"]
-[ext_resource type="Texture2D" uid="uid://cudork5nw1pr2" path="res://assets/test_text.png" id="5_br65t"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_v8rlc"]
 sky_horizon_color = Color(0.64625, 0.65575, 0.67075, 1)
@@ -164,9 +163,3 @@ shape = SubResource("BoxShape3D_7wbwp")
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="Area3D"]
 mesh = SubResource("BoxMesh_br65t")
-
-[node name="Decal" type="Decal" parent="Area3D/MeshInstance3D"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.081781, 4.93935, -0.107184)
-visible = false
-size = Vector3(4.56628, 6.50134, 8.40521)
-texture_albedo = ExtResource("5_br65t")
