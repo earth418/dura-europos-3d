@@ -28,6 +28,11 @@ func set_httpsignal(new_function):
 		httpr.request_completed.disconnect(c["callable"])
 	httpr.request_completed.connect(new_function)
 
+func sparql_request(url, function):
+	set_httpsignal(function)
+	httpr.cancel_request()
+	return httpr.request(url, ["Accept: application/sparql-results+json"], HTTPClient.METHOD_GET)
+
 func add_custom_image(image_id):
 	#Q122677095
 	
@@ -53,22 +58,25 @@ func add_custom_image(image_id):
 	var image_url = "https://query.wikidata.org/sparql?query=" + image_query.replace("Q122677095", image_id).uri_encode()
 	print(image_url)
 	
-	set_httpsignal(_image_id_request_completed)
-	
-	httpr.request(image_url, ["Accept: application/sparql-results+json"], HTTPClient.METHOD_GET)
+	sparql_request(image_url, _image_id_request_completed)
+	#set_httpsignal(_image_id_request_completed)
+	#
+	#httpr.cancel_request()
+	#httpr.request(image_url, ["Accept: application/sparql-results+json"], HTTPClient.METHOD_GET)
 
 func _image_id_request_completed(a, b, c, result_body : PackedByteArray):
 	
 	var json = JSON.new()
 	json.parse(result_body.get_string_from_utf8())
 	var response = json.get_data()
-	print(response)
+	#print(response)
 	
 	var response_body = response["results"]["bindings"]
+	print(response_body)
 	
 	for image in response_body:
 		if "image" in image:
-			associated_pics.append(image["object"]["value"])
+			associated_pics.append(image) #image["object"]["value"]
 			pics_urls[image["object"]["value"]] = image["image"]["value"]
 			$ItemList.add_item(image["objectLabel"]["value"])
 
@@ -76,10 +84,10 @@ func get_pics_depicting_building(building_id):
 	
 	#httpr.request_completed.connect(_building_request_completed)
 
-	set_httpsignal(_building_request_completed)
+	#set_httpsignal(_building_request_completed)
 	
 	var building_query = """
-	SELECT ?place ?object ?objectLabel ?placeLabel ?coordinate ?image WHERE {
+	SELECT ?place ?object ?objectLabel ?objectAltLabel ?objectDescription ?placeLabel ?coordinate ?image WHERE {
 	  BIND(wd:Q116950453 as ?place)
 	  SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],en". }
 	  ?object wdt:P31 wd:Q125191.
@@ -87,12 +95,14 @@ func get_pics_depicting_building(building_id):
 	  ?place wdt:P625 ?coordinate.
 	  OPTIONAL { ?object wdt:P18 ?image. }
 	}
-	LIMIT 100"""
+	LIMIT 200"""
 	
 	var building_url = "https://query.wikidata.org/sparql?query=" + building_query.replace("Q116950453", building_id).uri_encode()
 	#print(building_url)
-	
-	httpr.request(building_url, ["Accept: application/sparql-results+json"], HTTPClient.METHOD_GET)
+
+	sparql_request(building_url, _building_request_completed)	
+	#httpr.cancel_request()
+	#httpr.request(building_url, ["Accept: application/sparql-results+json"], HTTPClient.METHOD_GET)
 
 
 func _building_request_completed(a, b, c, result_body : PackedByteArray):
@@ -111,9 +121,10 @@ func _building_request_completed(a, b, c, result_body : PackedByteArray):
 # 		 "objectLabel": { "xml:lang": "en", "type": "literal", "value": "Dura-Europos archival photograph, YUAG Negative number: dura-b55~01" }, 
 # 		 "placeLabel": { "xml:lang": "en", "type": "literal", "value": "Dura-Europos" } }
 	
+	print(response_body)
 	for image in response_body:
 		if "image" in image:
-			associated_pics.append(image["object"]["value"])
+			associated_pics.append(image) # image["object"]["value"]
 			pics_urls[image["object"]["value"]] = image["image"]["value"]
 			$ItemList.add_item(image["objectLabel"]["value"])
 
@@ -149,14 +160,16 @@ func _process(delta: float) -> void:
 
 
 func _on_item_clicked(index: int, at_position: Vector2, mouse_button_index: int) -> void:
-	var id = associated_pics[index]
-	var url = pics_urls[id]
-	set_httpsignal(_image_request_completed)
-	
-	#print(loaded_picture_info)
-	#print(url)
 	loaded_picture_info = associated_pics[index]
-	httpr.request(url)
 	
-	$info_eg.text = "" # set to english description of image
+	var id = loaded_picture_info["object"]["value"]
+	var url = pics_urls[id]
+	
+	sparql_request(url, _image_request_completed)
+	print(loaded_picture_info)
+	
+ 	# set to english description of image
+	$info_eg.text = "AltLabel: " + loaded_picture_info["objectAltLabel"]["value"] +\
+	 "\nDescription: " + (loaded_picture_info["objectDescription"]["value"])
+	
 	$info_ar.text = "" # set to arabic description of image

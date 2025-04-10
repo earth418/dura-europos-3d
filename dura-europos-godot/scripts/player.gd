@@ -9,6 +9,14 @@ var selecting = true
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
 	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
+	
+	#var i = 0.0
+	#var pg = []
+	#for i in range(2.0*PI * 20):
+		#pg.append(100.0 * Vector2(cos(i / 20.0), sin(i / 20.0)))
+	#
+	#print(pg)
+	#$Camera3D/Control/CompassControl/compass.polygon = pg
 #
 #
 ## Called every frame. 'delta' is the elapsed time since the previous frame.
@@ -39,6 +47,9 @@ func _process(delta: float) -> void:
 		$Camera3D/Control/FocusedInfo/RichTextLabel.text = "Object displayed: " + new_obj.get_building_id()
 	last_looked_at = new_obj
 	
+	var cam = $Camera3D
+	var yaw = cam.rotation.y
+	$Camera3D/Control/CompassControl/compass/arrow.rotation = yaw
 	#var v = get_viewport()
 	#var id = v.get_texture()
 	#id.viewport_path
@@ -181,10 +192,10 @@ func _on_focus_button_pressed() -> void:
 	
 	if selecting:
 		wikigallery.clear_list()
-		#$Camera3D/Control/FocusedInfo/WikiGallery/ItemList.clear()
 		focus_on_object(selected_object)
 	else:
 		defocus_on_object(selected_object)
+		wikigallery.clear_list()
 	
 	#$Camera3D/Control/Button.text = "Click here to stop focusing on 
 		#object" if selecting else "Click here to focus on object"

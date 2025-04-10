@@ -127,9 +127,7 @@ func generate_geojson_mesh():
 			var pxcoord_loc = (Vector2(loc.x, loc.z) + Vector2(989.8, 989.8)) / (3.92)
 			var pxcoord = Vector2i(pxcoord_loc)
 			
-			var heightval00 = heightmap.get_pixelv(pxcoord).r
-			
-			var heightval = 0
+			var heightval = heightmap.get_pixelv(pxcoord).r
 			
 			# if we're within the image
 			if pxcoord.x < 504.0 and pxcoord.y < 504.0:
@@ -141,32 +139,23 @@ func generate_geojson_mesh():
 				var heightval01 = heightmap.get_pixelv(pxcoord + Vector2i(0.0, 1.0)).r
 				var heightval11 = heightmap.get_pixelv(pxcoord + Vector2i.ONE).r
 			
-				heightval = heightval00 * om_diff.x * om_diff.y + heightval10 * diff.x * om_diff.y + \
+				heightval = heightval * om_diff.x * om_diff.y + heightval10 * diff.x * om_diff.y + \
 							heightval01 * om_diff.x * diff.y + heightval11 * diff.x * diff.y
-			else:
-				heightval = heightval00
 				
-			var height = 174.5 + 57.3 * heightval
+			loc.y = 174.5 + 57.3 * heightval
 			
 			# I might go back to this raycast method, but the fact that this doesn't work is scaring me a bit
 			# Maybe the blender model is wrong?
 			# I probably should be making it from the heightmap directly, anyway, actually
-			
-			loc.y = height
-			
+	
 			locations.append(loc)
 			
 		print("Creating model ", json_path, " with ", len(locations), " locations")
-		#var shape = $CollisionShape3D.shape as ConvexPolygonShape3D
 		#shape.points = []
 		var collision_points = []
 		#var minxz_maxxz = [2000, 2000, -2000, -2000]
 		var emin = Vector3( 50000.0,  50000.0,  50000.0)
 		var emax = Vector3(-50000.0, -50000.0, -50000.0)
-		# var new_material = $cube.mesh.surface_get_material(0).duplicate()
-		
-		#if len(locations) == 377:
-			#print("This is ", json_path)
 		
 		var avg = Vector3(0.0, 0.0, 0.0)
 		
@@ -187,13 +176,17 @@ func generate_geojson_mesh():
 			#collision_points.append(loc1)
 			#collision_points.append(loc2 + Vector3(0, height_scale, 0))
 			
+			var pos = (loc1 + loc2 + Vector3(0, height_scale, 0)) / 2.0
+			var scl = Vector3(xscale, height_scale, 1.0)
+			var rot = Quaternion(Vector3.UP, -yaw)
+			
 			if generate_collisions:
 				var new_collision : CollisionShape3D = $CollisionShape3D.duplicate()
 				add_child(new_collision)
 				new_collision.shape = BoxShape3D.new()
-				(new_collision.shape as BoxShape3D).size = Vector3(xscale, height_scale, 1.0)
-				new_collision.global_position = (loc1 + loc2) / 2 + Vector3(0, height_scale, 0)
-				new_collision.quaternion = Quaternion(Vector3.UP, -yaw)
+				(new_collision.shape as BoxShape3D).size = scl
+				new_collision.global_position = pos
+				new_collision.quaternion = rot
 				#print("new collision loc: ", new_collision.global_position)
 			
 			var new_cube : MeshInstance3D = $cube.duplicate()
@@ -201,10 +194,10 @@ func generate_geojson_mesh():
 			#spawned_meshes.append(new_cube)
 			
 			#new_cube.mesh.surface_set_material(0, material)
-			new_cube.position = (loc1 + loc2) / 2 + Vector3(0, height_scale, 0)
-			new_cube.scale = Vector3(xscale, height_scale, 1.0)
+			new_cube.global_position = pos
+			new_cube.scale = scl
+			new_cube.quaternion = rot
 			#(new_cube as MeshInstance3D).global_rotate()
-			new_cube.quaternion = Quaternion(Vector3.UP, -yaw)
 			
 		
 		avg /= len(locations)
@@ -221,22 +214,9 @@ func generate_geojson_mesh():
 
 		mesh_location = (emax + emin) / 2
 		
-		#var id_display : TextMesh = TextMesh.new()
-		#id_display.font_size = 500
-		##id_display.width = 2500
-		#id_display.pixel_size = 0.05
 		$text_mesh.mesh.text = get_building_id()
 		$text_mesh.global_position = mesh_location + Vector3.UP * 20
-		#var meshinstance = MeshInstance3D.new()
-		#meshinstance.mesh = id_display
-		#mesh_parent.add_child(meshinstance)
-		#var shape : ConvexPolygonShape3D = $CollisionShape3D.shape as ConvexPolygonShape3D
-		#if shape == null:
-			#shape = ConcavePolygonShape3D.new()
-			#$CollisionShape3D.shape = shape
-		#print(shape.points)
-		#shape.points = collision_points
-
+		
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
 	pass

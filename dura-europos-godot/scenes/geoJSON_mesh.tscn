@@ -9,8 +9,7 @@ material = ExtResource("2_ksk5i")
 [sub_resource type="BoxShape3D" id="BoxShape3D_pjejb"]
 
 [sub_resource type="TextMesh" id="TextMesh_pjejb"]
-text = "Q1234567890
-"
+text = "Q98930725"
 font_size = 24
 pixel_size = 0.1
 depth = 0.5
