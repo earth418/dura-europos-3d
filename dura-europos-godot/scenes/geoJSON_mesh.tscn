@@ -28,4 +28,12 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -411.786, 218.796, -325.089)
 shape = SubResource("BoxShape3D_pjejb")
 
 [node name="text_mesh" type="MeshInstance3D" parent="."]
+visible = false
 mesh = SubResource("TextMesh_pjejb")
+
+[node name="id_display" type="Label3D" parent="."]
+pixel_size = 0.015
+billboard = 1
+modulate = Color(0, 0, 0, 1)
+text = "q32w84093218"
+font_size = 250

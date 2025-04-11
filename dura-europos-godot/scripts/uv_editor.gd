@@ -110,12 +110,13 @@ func _input(event: InputEvent) -> void:
 		working_uvs = []
 		state = PickState.TEX
 
-	if event.is_action_pressed("save"):
-		print("pressed ctrlS")
-		var f = FileDialog.new()
+	#if event.is_action_pressed("save"):
+		#print("pressed ctrlS")
+		#var f = FileDialog.new()
 		#f.use_native_dialog = true
-		add_child(f)
-		f.show()
+		#f.dialog_close_on_escape = true
+		#add_child(f)
+		#f.show()
 
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
@@ -197,15 +198,6 @@ func _on_viewport_container_input(event: InputEvent) -> void:
 				print("But ", object.get_building_id(), " was selected.")
 				print("You clicked ", intersect["collider"].get_building_id())
 
-func save_to_file(object, path):
-	
-	# from godot wiki
-	var gltf_document_save = GLTFDocument.new()
-	var gltf_state_save = GLTFState.new()
-	
-	gltf_document_save.append_from_scene(object, gltf_state_save)
-	gltf_document_save.write_to_filesystem(gltf_state_save, path)
-
 func apply_texture():
 	var clicked_object : Node3D = working_intersect["collider"]
 	#if clicked_object != object:
@@ -265,7 +257,7 @@ func apply_texture():
 	
 	
 	arrays[ArrayMesh.ARRAY_TEX_UV] = PackedVector2Array(working_uvs)
-	arrays[ArrayMesh.ARRAY_VERTEX] = PackedVector3Array(working_pos.map(func(v): return v + clicked_normal * 0.05))
+	arrays[ArrayMesh.ARRAY_VERTEX] = PackedVector3Array(working_pos.map(func(v): return v - object.global_position + clicked_normal * 0.05))
 	arrays[ArrayMesh.ARRAY_NORMAL] = PackedVector3Array([clicked_normal, clicked_normal, clicked_normal, clicked_normal])
 	
 	#var pos_2d = working_pos.map(_get_2d)

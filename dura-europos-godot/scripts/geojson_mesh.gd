@@ -4,7 +4,6 @@ class_name GeoJSON_Mesh extends Area3D
 var json_string : String
 var json_contents = JSON.new()
 var mesh_location : Vector3
-#var heightmap = preload("res://assets/heightmap.png")
 
 @onready var mesh_parent : Node3D = $walls_parent
 var spawned_meshes : Array[MeshInstance3D] = []
@@ -117,6 +116,9 @@ func generate_geojson_mesh():
 		var coordinates = feature["geometry"]["coordinates"]
 		var locations : Array[Vector3] = []
 		
+		var emin = Vector3( 50000.0,  50000.0,  50000.0)
+		var emax = Vector3(-50000.0, -50000.0, -50000.0)
+		
 		for coordinate in coordinates[0]:
 			
 			var coordvec = [coordinate[1], coordinate[0]]
@@ -144,6 +146,8 @@ func generate_geojson_mesh():
 				
 			loc.y = 174.5 + 57.3 * heightval
 			
+			emin = emin.min(loc)
+			emax = emax.max(loc)
 			# I might go back to this raycast method, but the fact that this doesn't work is scaring me a bit
 			# Maybe the blender model is wrong?
 			# I probably should be making it from the heightmap directly, anyway, actually
@@ -154,10 +158,11 @@ func generate_geojson_mesh():
 		#shape.points = []
 		var collision_points = []
 		#var minxz_maxxz = [2000, 2000, -2000, -2000]
-		var emin = Vector3( 50000.0,  50000.0,  50000.0)
-		var emax = Vector3(-50000.0, -50000.0, -50000.0)
 		
 		var avg = Vector3(0.0, 0.0, 0.0)
+		
+		mesh_location = (emax + emin) / 2
+		global_position = mesh_location
 		
 		for i in range(len(locations) - 1):
 			
@@ -170,8 +175,6 @@ func generate_geojson_mesh():
 			var height_scale = max(10.0, 1.5 * abs(loc1.y - loc2.y))
 			avg += loc1
 			
-			emin = emin.min(loc1)
-			emax = emax.max(loc1)
 			#print("min: ", emin, " , max: ", emax)
 			#collision_points.append(loc1)
 			#collision_points.append(loc2 + Vector3(0, height_scale, 0))
@@ -205,17 +208,23 @@ func generate_geojson_mesh():
 		#$CollisionShape3D.global_position = (emax + emin) / 2 
 		
 		if generate_collisions:
-			$CollisionShape3D.shape = null
+			#$CollisionShape3D.shape = null
+			$CollisionShape3D.hide()
 		else:
 			($CollisionShape3D.shape as CylinderShape3D).radius = (emax - emin).length() / 2
 			($CollisionShape3D.shape as CylinderShape3D).height = 50
 			
 			$CollisionShape3D.global_position = (emax + emin) / 2
 
-		mesh_location = (emax + emin) / 2
+		$cube.hide()
 		
-		$text_mesh.mesh.text = get_building_id()
-		$text_mesh.global_position = mesh_location + Vector3.UP * 20
+		$id_display.text = get_building_id()
+		#$text_mesh.mesh.text = get_building_id()
+		#($text_mesh.mesh as TextMesh).
+		#$text_mesh.mesh.
+		$id_display.position = Vector3.UP * 25
+		#$text_mesh.global_position = mesh_location + Vector3.UP * 25
+		
 		
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:

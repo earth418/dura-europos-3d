@@ -1,8 +1,14 @@
-[gd_scene load_steps=8 format=3 uid="uid://bgwkiepd3vs8c"]
+[gd_scene load_steps=10 format=3 uid="uid://bgwkiepd3vs8c"]
 
 [ext_resource type="Script" uid="uid://b1yhjey4aiixm" path="res://scripts/player.gd" id="1_cu3ye"]
 [ext_resource type="Script" uid="uid://bqim8t2aait7r" path="res://scripts/freelook_orbit_camera.gd" id="2_fkgpm"]
 [ext_resource type="Script" uid="uid://b4yv8jihw3q4o" path="res://scripts/picture_gallery.gd" id="3_wjey4"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_qhqgy"]
+bg_color = Color(0.6, 0.6, 0.6, 0.196078)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_dqkch"]
+bg_color = Color(0.6, 0.6, 0.6, 0.196078)
 
 [sub_resource type="Theme" id="Theme_qhqgy"]
 
@@ -35,6 +41,42 @@ grow_horizontal = 2
 grow_vertical = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
+
+[node name="ClickedInfo" type="Control" parent="Camera3D/Control"]
+layout_mode = 1
+anchor_left = 0.75
+anchor_top = 0.25
+anchor_right = 1.0
+anchor_bottom = 0.5
+
+[node name="building_id" type="RichTextLabel" parent="Camera3D/Control/ClickedInfo"]
+layout_mode = 1
+anchors_preset = -1
+anchor_right = 1.0
+anchor_bottom = 0.25
+grow_horizontal = 0
+theme_override_colors/default_color = Color(0, 0, 0, 1)
+theme_override_font_sizes/normal_font_size = 30
+theme_override_styles/normal = SubResource("StyleBoxFlat_qhqgy")
+
+[node name="building_description" type="RichTextLabel" parent="Camera3D/Control/ClickedInfo"]
+layout_mode = 1
+anchors_preset = -1
+anchor_top = 0.25
+anchor_right = 1.0
+anchor_bottom = 0.9
+grow_horizontal = 0
+theme_override_colors/default_color = Color(0, 0, 0, 1)
+theme_override_font_sizes/normal_font_size = 28
+theme_override_styles/normal = SubResource("StyleBoxFlat_dqkch")
+
+[node name="building_link" type="LinkButton" parent="Camera3D/Control/ClickedInfo"]
+layout_mode = 1
+anchors_preset = -1
+anchor_top = 0.9
+anchor_right = 1.0
+anchor_bottom = 1.0
+text = "Building Link"
 
 [node name="FocusedInfo" type="Control" parent="Camera3D/Control"]
 visible = false
@@ -112,17 +154,6 @@ text = "العربية
 fit_content = true
 horizontal_alignment = 2
 
-[node name="RichTextLabel" type="RichTextLabel" parent="Camera3D/Control/FocusedInfo"]
-layout_mode = 1
-anchors_preset = -1
-anchor_left = 0.75
-anchor_right = 1.0
-anchor_bottom = 0.1
-offset_left = -0.52002
-offset_bottom = -0.240005
-grow_horizontal = 0
-theme_override_font_sizes/normal_font_size = 20
-
 [node name="image_entry" type="LineEdit" parent="Camera3D/Control/FocusedInfo"]
 layout_mode = 1
 anchors_preset = -1
@@ -138,6 +169,7 @@ anchor_bottom = 0.2
 offset_right = 0.319946
 offset_bottom = 0.519989
 theme = SubResource("Theme_a5i7w")
+theme_override_colors/default_color = Color(0, 0, 0, 1)
 theme_override_font_sizes/normal_font_size = 24
 text = "Press F while building is clicked to focus
 Press G while image clicked to overlay textures
@@ -151,27 +183,21 @@ offset_bottom = 40.0
 
 [node name="CompassControl" type="Control" parent="Camera3D/Control"]
 layout_mode = 1
-anchor_left = 0.94
-anchor_top = 0.1
-anchor_right = 0.94
-anchor_bottom = 0.1
+anchor_left = 0.955
+anchor_top = 0.08
+anchor_right = 0.955
+anchor_bottom = 0.08
 grow_horizontal = 0
+scale = Vector2(0.75, 0.75)
 
 [node name="compass" type="Polygon2D" parent="Camera3D/Control/CompassControl"]
-polygon = PackedVector2Array(-10, -20, -2.09808e-05, -100, 10, -20, 50, -50, 20, -10, 100, -2.86102e-06, 20, 10, 50, 50, 10, 20, 0, 100, -10, 20, -50, 50, -20, 10, -100, 1.90735e-06, -20, -10, -50, -50)
+polygon = PackedVector2Array(-10, -20, -2.09808e-05, -100, 10, -20, 50, -50, 20, -10, 100, -2.86102e-06, 38.1988, 7.72516, 20, 10, 50, 50, 10, 20, 0, 100, -10, 20, -50, 50, -20, 10, -100, 1.90735e-06, -20, -10, -50, -50)
 uv = PackedVector2Array(-10, -10, -2.09808e-05, -100, 10, -10, 100, -2.86102e-06, 10, 10, -2.0707e-05, 100, -20, 20, -100, 1.90735e-06)
 
 [node name="arrow" type="Polygon2D" parent="Camera3D/Control/CompassControl/compass"]
 color = Color(1, 0, 0, 1)
 polygon = PackedVector2Array(-5, 0, -5, -50, -15, -50, 0, -70, 15, -50, 5, -50, 5, 0)
 uv = PackedVector2Array(-80, 10, -80, -40, -90, -40, -70, -60, -60, -40, -70, -40, -70, 10)
-
-[node name="Line2D" type="Line2D" parent="Camera3D/Control/CompassControl/compass"]
-visible = false
-points = PackedVector2Array(0, 0, 0, 39.38)
-default_color = Color(0, 0, 0, 1)
-joint_mode = 1
-begin_cap_mode = 1
 
 [connection signal="item_clicked" from="Camera3D/Control/FocusedInfo/WikiGallery/ItemList" to="Camera3D/Control/FocusedInfo/WikiGallery" method="_on_item_clicked"]
 [connection signal="text_submitted" from="Camera3D/Control/FocusedInfo/image_entry" to="." method="_on_image_entry_text_submitted"]

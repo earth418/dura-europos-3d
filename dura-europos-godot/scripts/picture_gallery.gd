@@ -17,6 +17,7 @@ var custom_pictures = []
 
 func clear_list():
 	$ItemList.clear()
+	associated_pics.clear()
 
 func add_customs():
 	for i in custom_pictures:
@@ -56,7 +57,7 @@ func add_custom_image(image_id):
 	#"""
 	
 	var image_url = "https://query.wikidata.org/sparql?query=" + image_query.replace("Q122677095", image_id).uri_encode()
-	print(image_url)
+	#print(image_url)
 	
 	sparql_request(image_url, _image_id_request_completed)
 	#set_httpsignal(_image_id_request_completed)
@@ -72,7 +73,7 @@ func _image_id_request_completed(a, b, c, result_body : PackedByteArray):
 	#print(response)
 	
 	var response_body = response["results"]["bindings"]
-	print(response_body)
+	#print(response_body)
 	
 	for image in response_body:
 		if "image" in image:
@@ -92,6 +93,7 @@ func get_pics_depicting_building(building_id):
 	  SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],en". }
 	  ?object wdt:P31 wd:Q125191.
 	  ?object wdt:P5008 wd:Q114241199.
+	  ?object wdt:P180 ?place.
 	  ?place wdt:P625 ?coordinate.
 	  OPTIONAL { ?object wdt:P18 ?image. }
 	}
@@ -121,7 +123,7 @@ func _building_request_completed(a, b, c, result_body : PackedByteArray):
 # 		 "objectLabel": { "xml:lang": "en", "type": "literal", "value": "Dura-Europos archival photograph, YUAG Negative number: dura-b55~01" }, 
 # 		 "placeLabel": { "xml:lang": "en", "type": "literal", "value": "Dura-Europos" } }
 	
-	print(response_body)
+	#print(response_body)
 	for image in response_body:
 		if "image" in image:
 			associated_pics.append(image) # image["object"]["value"]
@@ -166,7 +168,7 @@ func _on_item_clicked(index: int, at_position: Vector2, mouse_button_index: int)
 	var url = pics_urls[id]
 	
 	sparql_request(url, _image_request_completed)
-	print(loaded_picture_info)
+	#print(loaded_picture_info)
 	
  	# set to english description of image
 	$info_eg.text = "AltLabel: " + loaded_picture_info["objectAltLabel"]["value"] +\
