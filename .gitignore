@@ -17,3 +17,6 @@ mono_crash.*.json
 cpp-gdextension
 
 images
+
+# Exported versions of the game
+versions

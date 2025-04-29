@@ -229,8 +229,9 @@ func apply_texture():
 		clicked_object.add_child(new_meshinstance)
 	
 	var arrays = []
-	
 	arrays.resize(ArrayMesh.ARRAY_MAX)
+	
+	# Checking to make sure triangles are pointed in the correct order
 	
 	var triangle_1 = [2, 1, 0]
 	
@@ -269,8 +270,6 @@ func apply_texture():
 	var surface_idx = new_mesh.get_surface_count()
 	new_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
 	new_mesh.surface_set_material(surface_idx, material)
-	
-	
 	
 	uv_pos_list.append([working_uvs, working_pos, new_mesh, surface_idx])
 	uv_itemlist.add_item("Decal " + str(uv_itemlist.item_count + 1))
