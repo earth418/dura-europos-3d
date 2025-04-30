@@ -1,12 +1,5 @@
 @tool
 class_name GeoJSON_Mesh extends Area3D
-## A script that, from a geoJSON file, creates a 3D mesh with "walls" conecting each pair of points.
-##
-## It uses the latitude and longitude inputs and the haversine formula relative to the 
-## center of the map, as well as querying the heightmap, to calculate a 3D position.
-##
-## @experimental
-
 
 var json_string : String
 var json_contents = JSON.new()
@@ -38,7 +31,6 @@ func load_json_file(json_filepath):
 		json_path = json_filepath
 
 func get_building_id():
-	# Gets everything after the last "/" and before the first "."
 	return json_path.split("/")[-1].split(".")[0]
 
 @export var refresh : bool:
@@ -57,11 +49,14 @@ func get_building_id():
 
 @export var generate_collisions = false:
 	set(new_val):
+		#if new_val:
+			#$CollisionShape3D.shape = BoxShape3D.new()
+		#else:
+			#$CollisionShape3D.shape = CylinderShape3D.new()
 		generate_collisions = new_val
 
 @export var debug_height = false
 
-# Center location of the downloaded map of terrain -- copied from README in /assets.
 const center_loc = [34.74799827813365, 40.73026895370481]
 #const center_loc = [34.748, 40.730]
 

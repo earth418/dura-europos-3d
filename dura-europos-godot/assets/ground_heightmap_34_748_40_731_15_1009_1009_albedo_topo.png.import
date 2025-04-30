@@ -4,9 +4,8 @@ importer="texture"
 type="CompressedTexture2D"
 uid="uid://be8g27eo7uih3"
 path.s3tc="res://.godot/imported/ground_heightmap_34_748_40_731_15_1009_1009_albedo_topo.png-8f413a0be723c78ddbe1782cb0fc6905.s3tc.ctex"
-path.etc2="res://.godot/imported/ground_heightmap_34_748_40_731_15_1009_1009_albedo_topo.png-8f413a0be723c78ddbe1782cb0fc6905.etc2.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"imported_formats": ["s3tc_bptc"],
 "vram_texture": true
 }
 generator_parameters={
@@ -16,7 +15,7 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/ground_heightmap_34_748_40_731_15_1009_1009_albedo_topo.png"
-dest_files=["res://.godot/imported/ground_heightmap_34_748_40_731_15_1009_1009_albedo_topo.png-8f413a0be723c78ddbe1782cb0fc6905.s3tc.ctex", "res://.godot/imported/ground_heightmap_34_748_40_731_15_1009_1009_albedo_topo.png-8f413a0be723c78ddbe1782cb0fc6905.etc2.ctex"]
+dest_files=["res://.godot/imported/ground_heightmap_34_748_40_731_15_1009_1009_albedo_topo.png-8f413a0be723c78ddbe1782cb0fc6905.s3tc.ctex"]
 
 [params]
 
