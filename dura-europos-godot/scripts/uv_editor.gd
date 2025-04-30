@@ -237,8 +237,9 @@ func apply_texture():
 		clicked_object.add_child(new_meshinstance)
 	
 	var arrays = []
-	
 	arrays.resize(ArrayMesh.ARRAY_MAX)
+	
+	# Checking to make sure triangles are pointed in the correct order
 	
 	var triangle_1 = [2, 1, 0]
 	
@@ -278,6 +279,7 @@ func apply_texture():
 	new_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
 	new_mesh.surface_set_material(surface_idx, material)
 	
+<<<<<<< HEAD
 	var clicked_building = clicked_object as GeoJSON_Mesh
 	if clicked_building:
 		var id = clicked_building.get_building_id()
@@ -288,6 +290,10 @@ func apply_texture():
 		else:
 			uv_pos_list[id] = [info_array]
 		uv_itemlist.add_item("Decal " + str(surface_idx))
+=======
+	uv_pos_list.append([working_uvs, working_pos, new_mesh, surface_idx])
+	uv_itemlist.add_item("Decal " + str(uv_itemlist.item_count + 1))
+>>>>>>> 73b255663eb880ca3d2678c9cbbd12002742e4be
 	
 	state = PickState.DONE
 	working_intersect = {}
