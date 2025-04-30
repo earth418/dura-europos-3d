@@ -33,6 +33,8 @@ var anchor_transform : Transform3D = Transform3D() :
 @export var TOUCH_INVERT_ZOOM: bool = false
 
 # Event var
+var is_scrolling = true
+
 var _move_speed: Vector2
 var _scroll_speed: float
 var _touches: Dictionary
@@ -137,7 +139,7 @@ func _process(delta):
 func _freelook_update_movement(delta):
 	# Computes desired direction from key states
 	_direction = Vector3(
-		(_d as float) - (_a as float), 
+		(_d as float) - (_a as float),
 		(_e as float) - (_q as float),
 		(_s as float) - (_w as float)
 	)
@@ -194,7 +196,9 @@ func _orbit_process_transformation(delta: float):
 	_move_speed = Vector2()
 	
 	# Update distance
-	_distance += _scroll_speed * delta
+	if is_scrolling:
+		_distance += _scroll_speed * delta
+	
 	if _distance < 0:
 		_distance = 0
 	_scroll_speed = 0
@@ -225,3 +229,10 @@ func _process_mouse_scroll_event(e: InputEventMouseButton):
 		_scroll_speed = -1 * SCROLL_SPEED
 	elif e.button_index == MOUSE_BUTTON_WHEEL_DOWN:
 		_scroll_speed = 1 * SCROLL_SPEED
+
+
+func _on_item_list_mouse_entered() -> void:
+	is_scrolling = false
+
+func _on_item_list_mouse_exited() -> void:
+	is_scrolling = true

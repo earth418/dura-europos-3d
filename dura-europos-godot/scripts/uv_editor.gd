@@ -23,8 +23,8 @@ static func create_editor(object, picture, pic_info):
 @onready var new_world = $Control2/SubViewportContainer/SubViewport/Node3D
 @onready var camera : FreeLookOrbitCamera = new_world.get_node("FreeLookOrbitCamera")
 
-#var uv_list : Dictionary = {}
-var uv_pos_list : Array = []
+## Maps from a building ID to a list of UV overlays
+static var uv_pos_list : Dictionary = {}
 
 @onready var uv_itemlist : ItemList = camera.get_node("Control/ItemList")
 @onready var polygon : Polygon2D = $Control2/TextureRect/Polygon2D
@@ -50,6 +50,11 @@ func _ready() -> void:
 	if _object:
 		camera.anchor_transform = Transform3D(Basis(), _object.mesh_location)
 		object = _object
+		var obj_id = _object.get_building_id()
+		if obj_id in uv_pos_list:
+			print("# of uvs:", len(uv_pos_list[obj_id]))
+			for uvitem in uv_pos_list[obj_id]:
+				uv_itemlist.add_item("Decal " + str(uvitem[3]))
 		#new_obj : GeoJSON_Mesh = _object.duplicate()
 		#_object.global_position = -_object.mesh_location
 		#camera.anchor_transform = Transform3D(Basis(), _object.mesh_location)
@@ -60,11 +65,7 @@ func _ready() -> void:
 		#new_obj.json_path = _object.json_path
 		#add_child(new_obj)
 		#new_obj.generate_geojson_mesh()
-		#
-		#
-		#print(new_obj)
-		#print(new_obj.json_path)
-		#new_obj.global_position = pos	
+		
 	else:
 		object = new_world.get_node("Area3D")
 		## debug
@@ -133,12 +134,15 @@ func _process(delta: float) -> void:
 			polygon.polygon = pts
 		else:
 			polygon.polygon.clear()
-	else:
-		if state == PickState.VIEWPORT:
-			var pts = PackedVector2Array()
-			for i in working_uvs:
-				pts.append(i * texture_rect.size)
-			polygon.polygon = pts
+	elif state == PickState.VIEWPORT:
+		
+		pass
+	#else:
+		#if state == PickState.VIEWPORT:
+			#var pts = PackedVector2Array()
+			#for i in working_uvs:
+				#pts.append(i * texture_rect.size)
+			#polygon.polygon = pts
 		
 
 func _on_close_requested() -> void:
@@ -193,13 +197,17 @@ func _on_viewport_container_input(event: InputEvent) -> void:
 					apply_texture()
 			else:
 				
-				#(object as GeoJSON_Mesh).get_building_id()
 				print("Click the same surface please!")
 				print("But ", object.get_building_id(), " was selected.")
-				print("You clicked ", intersect["collider"].get_building_id())
+				var bd = intersect["collider"] as GeoJSON_Mesh
+				if bd:
+					print("You clicked ", bd.get_building_id())
+				else:
+					print("You didn't click a building!")
 
 func apply_texture():
 	var clicked_object : Node3D = working_intersect["collider"]
+	
 	#if clicked_object != object:
 		#print("Object should not change!")
 		#object = clicked_object
@@ -211,7 +219,7 @@ func apply_texture():
 	#uv_list[uv] = clicked_point
 	
 	var material : StandardMaterial3D = texture_mat.duplicate()
-	material.albedo_texture = texture_rect.texture
+	material.albedo_texture = texture_rect.texture.duplicate()
 
 	var new_mesh : ArrayMesh
 	var new_meshinstance : MeshInstance3D
@@ -270,10 +278,16 @@ func apply_texture():
 	new_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
 	new_mesh.surface_set_material(surface_idx, material)
 	
-	
-	
-	uv_pos_list.append([working_uvs, working_pos, new_mesh, surface_idx])
-	uv_itemlist.add_item("Decal " + str(uv_itemlist.item_count + 1))
+	var clicked_building = clicked_object as GeoJSON_Mesh
+	if clicked_building:
+		var id = clicked_building.get_building_id()
+		var info_array = [working_uvs, working_pos, new_mesh, surface_idx]
+		
+		if id in uv_pos_list:
+			uv_pos_list[id].append(info_array)
+		else:
+			uv_pos_list[id] = [info_array]
+		uv_itemlist.add_item("Decal " + str(surface_idx))
 	
 	state = PickState.DONE
 	working_intersect = {}
@@ -294,27 +308,29 @@ func list_item_clicked(index : int):
 		new_color = Color.RED
 		selected_indices[index] = 1
 		print("Selecting item ", index)
-		
-	var mesh : ArrayMesh = uv_pos_list[index][2]
-	var surf_idx = uv_pos_list[index][3]
+	
+	var building_id = (object as GeoJSON_Mesh).get_building_id()
+	var uv_info = uv_pos_list[building_id][index]
+	var mesh : ArrayMesh = uv_info[2]
+	var surf_idx = uv_info[3]
 	
 	var mat : StandardMaterial3D = mesh.surface_get_material(surf_idx)
 	mat.albedo_color = new_color
 	#mat.emission = new_color
 
 func list_item_input(event: InputEvent):
-	
+	var obj_id = (object as GeoJSON_Mesh).get_building_id()
 	if event is InputEventKey and event.pressed:
 		if event.keycode == KEY_DELETE or event.keycode == KEY_BACKSPACE:
 			for index in selected_indices:
 				#print("Deleting object ", index, " out of ", len(uv_pos_list))
-				var info = uv_pos_list.pop_at(index)
+				var info = uv_pos_list[obj_id].pop_at(index)
 				uv_itemlist.remove_item(index)
 				var mesh : ArrayMesh = info[2]
 				var idx = info[3]
 				mesh.surface_remove(idx)
 				selected_indices.erase(index)
 				
-				for uvpos_item in uv_pos_list:
+				for uvpos_item in uv_pos_list[obj_id]:
 					if uvpos_item[3] > idx:
 						uvpos_item[3] -= 1

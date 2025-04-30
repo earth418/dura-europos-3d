@@ -206,7 +206,8 @@ func open_uv_editor(obj, photo, photo_info = null):
 func focus_on_object(obj):
 	
 	$Camera3D/Control/FocusedInfo.visible = true
-	$Camera3D._distance = global_position.distance_to(obj.mesh_location)
+	$Camera3D._distance = $Camera3D.DEFAULT_DISTANCE
+	#global_position.distance_to(obj.mesh_location)
 	$Camera3D.anchor_transform = Transform3D(Basis(), obj.mesh_location)
 	$Camera3D.camera_type = FreeLookOrbitCamera.CameraType.ORBIT
 	

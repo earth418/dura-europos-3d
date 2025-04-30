@@ -42,6 +42,21 @@ grow_vertical = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 
+[node name="TextEdit" type="TextEdit" parent="Camera3D/Control"]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.75
+anchor_top = 0.15
+anchor_right = 1.0
+anchor_bottom = 0.25
+offset_left = -0.920044
+offset_top = 15.8
+offset_right = 2.0
+offset_bottom = 2.47998
+theme_override_font_sizes/font_size = 30
+placeholder_text = "Enter building ID here to search
+"
+
 [node name="ClickedInfo" type="Control" parent="Camera3D/Control"]
 layout_mode = 1
 anchor_left = 0.75
@@ -200,4 +215,6 @@ polygon = PackedVector2Array(-5, 0, -5, -50, -15, -50, 0, -70, 15, -50, 5, -50, 
 uv = PackedVector2Array(-80, 10, -80, -40, -90, -40, -70, -60, -60, -40, -70, -40, -70, 10)
 
 [connection signal="item_clicked" from="Camera3D/Control/FocusedInfo/WikiGallery/ItemList" to="Camera3D/Control/FocusedInfo/WikiGallery" method="_on_item_clicked"]
+[connection signal="mouse_entered" from="Camera3D/Control/FocusedInfo/WikiGallery/ItemList" to="Camera3D" method="_on_item_list_mouse_entered"]
+[connection signal="mouse_exited" from="Camera3D/Control/FocusedInfo/WikiGallery/ItemList" to="Camera3D" method="_on_item_list_mouse_exited"]
 [connection signal="text_submitted" from="Camera3D/Control/FocusedInfo/image_entry" to="." method="_on_image_entry_text_submitted"]
