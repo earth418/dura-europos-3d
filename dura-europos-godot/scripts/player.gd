@@ -5,6 +5,11 @@ var selected_object : GeoJSON_Mesh = null
 var selecting = true
 
 @onready var wikigallery : WikiGallery = $Camera3D/Control/FocusedInfo/WikiGallery
+@onready var clickedinfo : Control = $Camera3D/Control/ClickedInfo
+
+#@export var path_to_meshes : NodePath
+
+@export var meshes : DE_Meshes 
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
@@ -31,13 +36,14 @@ func save_to_file(object, path):
 	gltf_document_save.write_to_filesystem(gltf_state_save, path)
 
 var last_looked_at : GeoJSON_Mesh = null
+
 func _process(delta: float) -> void:
 	var new_obj = get_pointed_object() as GeoJSON_Mesh
 	
 	if last_looked_at and last_looked_at != selected_object:
 		last_looked_at.material = white_mat
 		if selecting:
-			$Camera3D/Control/ClickedInfo.hide()
+			clickedinfo.hide()
 		#$Camera3D/Control/ClickedInfo/building_id.text = ""
 		#$Camera3D/Control/ClickedInfo/building_description.text = ""
 	
@@ -46,8 +52,8 @@ func _process(delta: float) -> void:
 		
 		if selecting:
 			var json_file = new_obj.json_contents.data
-			$Camera3D/Control/ClickedInfo.show()
-			$Camera3D/Control/ClickedInfo/building_id.text = "Object displayed: " + new_obj.get_building_id()
+			clickedinfo.show()
+			clickedinfo.get_node("building_id").text = "Object displayed: " + new_obj.get_building_id()
 			
 			#if "data" in json_file and "features" in json_file["data"] and "properties" in json_file["data"]["features"][0]:
 			if "description" in json_file:
@@ -56,10 +62,10 @@ func _process(delta: float) -> void:
 				#$Camera3D/Control/ClickedInfo/building_description.text = "Title: " +\
 				#obj_properties["title"] + "\nDescription: " + obj_properties["description"]
 				#$Camera3D/Control/ClickedInfo/building_link.uri = obj_properties["link"]
-				$Camera3D/Control/ClickedInfo/building_description.text = json_file["description"]["en"]
+				clickedinfo.get_node("building_description").text = json_file["description"]["en"]
 			else:
-				$Camera3D/Control/ClickedInfo/building_description.text = ""
-				$Camera3D/Control/ClickedInfo/building_link.uri = ""
+				clickedinfo.get_node("building_description").text = ""
+				clickedinfo.get_node("building_link").uri = ""
 		
 	last_looked_at = new_obj
 	
@@ -73,28 +79,21 @@ func _process(delta: float) -> void:
 	#print(id)
 
 
-func display_info_for_object(obj):
+func click_object(obj):
 	
+	if not obj:
+		return
+	
+	obj.material = outline_mat
+	selected_object = obj
+		
+func unclick_object(obj):
 	if not obj:
 		return
 		
-	#$Camera3D/Control/FocusedInfo.visible = true
-	#Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
-	
-	#var id = obj.json_path.split("/")[-1].split(".")[0]
-	#$Camera3D/Control/FocusedInfo/RichTextLabel.text = "Object displayed: " + id
-	
-func un_display_object(obj):
-	if not obj:
-		return
-	
-	#$Camera3D/Control/FocusedInfo.visible = false
-	#Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
-	#$Camera3D/Control/RichTextLabel.text = ""\
-	
-	#$Camera3D.camera_type = FreeLookOrbitCamera.CameraType.FREELOOK
-
-
+	obj.material = white_mat
+	selected_object = null
+	#last_looked_at = null
 
 func _input(event):
 
@@ -128,30 +127,19 @@ func _input(event):
 			
 		var object = get_pointed_object()
 		#for selected_obj in selected_objects:
-		if selected_object:
-			#print(selected_object.json_path)
-			un_display_object(selected_object)
-			selected_object.material = white_mat
+		unclick_object(selected_object)
 
 		var new_obj = object as GeoJSON_Mesh
-		if new_obj:
-			#print(new_obj.json_path)
-			new_obj.material = outline_mat
-			display_info_for_object(new_obj)
+		click_object(new_obj)
 		#else:
 			#print(object)
 			
-		selected_object = new_obj
 
 	if event.is_action_pressed("right-click"):
 		
 		if not selecting:
 			return
-		
-		if selected_object:
-			#print(selected_object.json_path)
-			un_display_object(selected_object)
-			selected_object.material = white_mat
+		unclick_object(selected_object)
 
 	#if event.is_action_pressed("shift-click"):
 		#selected_objects.append(get_pointed_object())
@@ -256,3 +244,22 @@ func _on_focus_button_pressed() -> void:
 
 func _on_image_entry_text_submitted(new_text: String) -> void:
 	wikigallery.add_custom_image(new_text)
+
+
+func _on_building_search_text_submitted(new_text: String) -> void:
+	
+	#print(new_text)
+	#print(meshes.object_list)
+	if meshes and new_text in meshes.object_list:
+		if selected_object:
+			defocus_on_object(selected_object)
+			unclick_object(selected_object)
+			#selected_object.material = white_mat
+		
+		click_object(meshes.object_list[new_text]) # Also selects it
+		wikigallery.clear_list()
+		focus_on_object(selected_object)
+	else:
+		print("Building not found!")
+	#get_parent_node_3d().get_node(path_to_meshes)
+	#pass # Replace with function body.

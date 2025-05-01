@@ -109,12 +109,12 @@ script = ExtResource("2_0xlqj")
 heightmap = ExtResource("3_xctb6")
 material = ExtResource("4_hisut")
 
-[node name="Player" parent="." instance=ExtResource("8_wi7pd")]
+[node name="Player" parent="." node_paths=PackedStringArray("meshes") instance=ExtResource("8_wi7pd")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -257.09, 250, 152.518)
+meshes = NodePath("../GeoJSON_Meshes")
 
 [node name="GeoJSON_Meshes" type="Node3D" parent="."]
 script = ExtResource("6_17bpj")
-should_generate_collisions = true
 
 [node name="test" type="Node3D" parent="GeoJSON_Meshes"]
 

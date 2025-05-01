@@ -33,7 +33,7 @@ def get_results(endpoint_url, query):
 def get_id_from_url(url):
     return url.split("/")[-1]
 
-if False:
+if True:
 
     results = get_results(endpoint_url, get_buildings_query)
 
@@ -43,9 +43,9 @@ if False:
         item_id = get_id_from_url(result["item"]["value"])
         
         print(item_name)
-        if os.path.isfile("geojsons" + os.sep + item_id + ".geojson"):
-            print(item_id + f" ({item_name}) is already here, skipping...")
-            continue
+        # if os.path.isfile("geojsons" + os.sep + item_id + ".geojson"):
+        #     print(item_id + f" ({item_name}) is already here, skipping...")
+        #     continue
         
         get_geojson_query = '''
             SELECT ?item ?itemLabel ?value
@@ -59,88 +59,92 @@ if False:
         
         geojson_query_results = get_results(endpoint_url, get_geojson_query)
         geojson_query_result_bindings = geojson_query_results["results"]["bindings"]
+        print(geojson_query_results)
         
         if len(geojson_query_result_bindings) > 0:
         
             geojson_query_result = geojson_query_result_bindings[0]
             geojson_link = geojson_query_result["value"]["value"]
-            geojson_result = requests.get(geojson_link)
+            # geojson_result = requests.get(geojson_link)
         
-            if geojson_result.status_code == 200:
-                print("found, check geojsons" + os.sep + item_id + f' ({item_name})')
-                open("geojsons" + os.sep + item_id + ".geojson", "w").write(geojson_result.text)
-            else:
-                print("...not found")
+            print(geojson_link)
+            # if geojson_result.status_code == 200:
+            #     # print("found, check geojsons" + os.sep + item_id + f' ({item_name})')
+            #     # open("geojsons" + os.sep + item_id + ".geojson", "w").write(geojson_result.text)
+            # else:
+            #     print("...not found")
         
         else:
             print("...not found")
 
-get_images_query = """
-#defaultView:Map
-SELECT ?object ?objectLabel ?place ?placeLabel ?coordinate ?image WHERE {
-SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],en". }
-?object wdt:P31 wd:Q125191.
-?object wdt:P5008 wd:Q114241199.
-?object wdt:P180 ?place.
-?place wdt:P625 ?coordinate.
-OPTIONAL { ?object wdt:P18 ?image. }
-}
-LIMIT 20000
-"""
 
-images_results = get_results(endpoint_url, get_images_query)
+if False:
+    get_images_query = """
+    #defaultView:Map
+    SELECT ?object ?objectLabel ?place ?placeLabel ?coordinate ?image WHERE {
+    SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],en". }
+    ?object wdt:P31 wd:Q125191.
+    ?object wdt:P5008 wd:Q114241199.
+    ?object wdt:P180 ?place.
+    ?place wdt:P625 ?coordinate.
+    OPTIONAL { ?object wdt:P18 ?image. }
+    }
+    LIMIT 20000
+    """
 
-results_by_building = {}
+    images_results = get_results(endpoint_url, get_images_query)
 
-for result in images_results["results"]["bindings"]:
-    # print(result)
-    # print(result["place"])
-    
-    place = get_id_from_url(result["place"]["value"])
-    if place not in results_by_building:
-        results_by_building[place] = [result]
-    else:
-        results_by_building[place].append(result)
+    results_by_building = {}
 
-# resetting each time
-# shutil.rmtree("images")
-# os.mkdir("images")
-
-for building_id, image_list in results_by_building.items():
-    for image_info in image_list:
-        _dir = "images" + os.sep + building_id
-        image_objectid = get_id_from_url(image_info["object"]["value"])
-    
-        if not os.path.exists(_dir):
-            os.mkdir(_dir)
+    for result in images_results["results"]["bindings"]:
+        # print(result)
+        # print(result["place"])
+        
+        place = get_id_from_url(result["place"]["value"])
+        if place not in results_by_building:
+            results_by_building[place] = [result]
         else:
-            if os.path.isfile(_dir + os.sep + image_objectid + "_image_info.json"):
-                continue
+            results_by_building[place].append(result)
 
-        open(_dir + os.sep + image_objectid + "_image_info.json", "w").write(str(image_info))
+    # resetting each time
+    # shutil.rmtree("images")
+    # os.mkdir("images")
+
+    for building_id, image_list in results_by_building.items():
+        for image_info in image_list:
+            _dir = "images" + os.sep + building_id
+            image_objectid = get_id_from_url(image_info["object"]["value"])
         
-        img_url = image_info["image"]["value"]
-        image_ending = img_url.split("/")[-1].split(".")[-1]
-        # urllib.urlretrieve()
-        # with requests.get(img_url, stream=True) as img_result:
-        
-        # async def 
-        # requests.urlopen()
-        with open(_dir + os.sep + image_objectid + "." + image_ending, "wb") as imagef:
-            img = request.urlopen(img_url)
-            imagef.write(img.read())
-            print(f"downloaded {_dir + os.sep + image_objectid + '.' + image_ending}")
+            if not os.path.exists(_dir):
+                os.mkdir(_dir)
+            else:
+                if os.path.isfile(_dir + os.sep + image_objectid + "_image_info.json"):
+                    continue
+
+            open(_dir + os.sep + image_objectid + "_image_info.json", "w").write(str(image_info))
             
-        
-        # filename = wget.download(img_url, out=(_dir + os.sep + image_objectid + "." + image_ending))
-        # print(f"downloaded {filename}")
-        # img_result = requests.get(img_url)
-        # sleep(0.5)
-        # if img_result.status_code == 200:
-        #     print("image found!")
-        #     with open(_dir + os.sep + image_objectid + "." + image_ending, "wb") as imagef:
-        #         imagef.write(img_result.content)
-        #         # for chunk in img_result:
-        #             # imagef.write(chunk)                        
-        # else:
-        #     print("image not found :(")
+            img_url = image_info["image"]["value"]
+            image_ending = img_url.split("/")[-1].split(".")[-1]
+            # urllib.urlretrieve()
+            # with requests.get(img_url, stream=True) as img_result:
+            
+            # async def 
+            # requests.urlopen()
+            with open(_dir + os.sep + image_objectid + "." + image_ending, "wb") as imagef:
+                img = request.urlopen(img_url)
+                imagef.write(img.read())
+                print(f"downloaded {_dir + os.sep + image_objectid + '.' + image_ending}")
+                
+            
+            # filename = wget.download(img_url, out=(_dir + os.sep + image_objectid + "." + image_ending))
+            # print(f"downloaded {filename}")
+            # img_result = requests.get(img_url)
+            # sleep(0.5)
+            # if img_result.status_code == 200:
+            #     print("image found!")
+            #     with open(_dir + os.sep + image_objectid + "." + image_ending, "wb") as imagef:
+            #         imagef.write(img_result.content)
+            #         # for chunk in img_result:
+            #             # imagef.write(chunk)                        
+            # else:
+            #     print("image not found :(")

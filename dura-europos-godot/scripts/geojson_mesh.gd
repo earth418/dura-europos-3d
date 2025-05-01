@@ -1,5 +1,9 @@
 @tool
 class_name GeoJSON_Mesh extends Area3D
+## A script that, from a geoJSON file, creates a 3D mesh with "walls" conecting each pair of points.
+##
+## It uses the latitude and longitude inputs and the haversine formula relative to the 
+## center of the map, as well as querying the heightmap, to calculate a 3D position.
 
 var json_string : String
 var json_contents = JSON.new()
@@ -21,6 +25,7 @@ func load_json_file(json_filepath):
 	if error != OK:
 		print("Data not formatted correctly!")
 		json_contents = JSON.new()
+	json_path = json_filepath
 	#print(json_contents.data)
 
 @export_file var json_path: String:
@@ -55,7 +60,7 @@ func get_building_id():
 			#$CollisionShape3D.shape = CylinderShape3D.new()
 		generate_collisions = new_val
 
-@export var debug_height = false
+#@export var debug_height = false
 
 const center_loc = [34.74799827813365, 40.73026895370481]
 #const center_loc = [34.748, 40.730]
@@ -83,21 +88,21 @@ func generate_geojson_mesh():
 	var geojson = json_contents.data
 	var heightmap = preload("res://assets/heightmap.png")
 	
-	if debug_height:
-		for i in range(50):
-			for j in range(50):
-				var coords = Vector2i(i * 10, j * 10)
-				
-				var heightval = heightmap.get_pixelv(coords)
-				#print(coords)
-				var height = 174.5 + 57.3 * heightval.r
-				
-				var new_cube = $cube.duplicate()
-				mesh_parent.add_child(new_cube)
-				
-				new_cube.global_position = Vector3(coords.x * 3.92 - 989, height, coords.y * 3.92 - 989)
-				new_cube.global_scale(Vector3(15.0, 15.0, 15.0))
-		return
+	#if debug_height:
+		#for i in range(50):
+			#for j in range(50):
+				#var coords = Vector2i(i * 10, j * 10)
+				#
+				#var heightval = heightmap.get_pixelv(coords)
+				##print(coords)
+				#var height = 174.5 + 57.3 * heightval.r
+				#
+				#var new_cube = $cube.duplicate()
+				#mesh_parent.add_child(new_cube)
+				#
+				#new_cube.global_position = Vector3(coords.x * 3.92 - 989, height, coords.y * 3.92 - 989)
+				#new_cube.global_scale(Vector3(15.0, 15.0, 15.0))
+		#return
 
 	if "data" not in geojson:
 		return
