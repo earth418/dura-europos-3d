@@ -86,7 +86,7 @@ func click_object(obj):
 	
 	obj.material = outline_mat
 	selected_object = obj
-		
+
 func unclick_object(obj):
 	if not obj:
 		return
@@ -168,27 +168,6 @@ func open_uv_editor(obj, photo, photo_info = null):
 		uv_window = UVEditorWindow.create_editor(obj, photo, photo_info)
 		#get_world_3d()
 		add_child(uv_window)
-	#add_child(window)
-	# var v = Viewport.new()
-	#var w = Window.new()
-	#w.size = Vector2i(500, 500)
-	##var w = Popup.new()
-	#w.add_child(obj.duplicate())
-	#var new_camera : FreeLookOrbitCamera = $Camera3D.duplicate()
-	#
-	#new_camera.anchor_transform = Transform3D()
-	#new_camera.camera_type = FreeLookOrbitCamera.CameraType.ORBIT
-	#w.add_child(new_camera)
-	#
-	#w.popup_centered_ratio() # 80% of the default window size
-	#w.grab_focus()
-	#w.visible = true
-	#var s = SceneTree.new()
-	#s
-	#var new_world = World3D.new()
-	#new_world
-	#w.world_3d = new_world
-
 #var is_focused = false
 
 func focus_on_object(obj):
