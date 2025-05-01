@@ -10,10 +10,11 @@
 [ext_resource type="Script" uid="uid://ui6vjvj5jfdq" path="res://scripts/de_geojson_meshes.gd" id="6_17bpj"]
 [ext_resource type="PackedScene" uid="uid://bgwkiepd3vs8c" path="res://scenes/player.tscn" id="8_wi7pd"]
 
-[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_5mal1"]
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_cucx1"]
+sun_angle_max = 0.0
 
 [sub_resource type="Sky" id="Sky_ey5tq"]
-sky_material = SubResource("ProceduralSkyMaterial_5mal1")
+sky_material = SubResource("ProceduralSkyMaterial_cucx1")
 
 [sub_resource type="Environment" id="Environment_uvtsb"]
 background_mode = 2

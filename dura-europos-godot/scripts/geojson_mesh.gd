@@ -25,7 +25,7 @@ func load_json_file(json_filepath):
 	if error != OK:
 		print("Data not formatted correctly!")
 		json_contents = JSON.new()
-	json_path = json_filepath
+	#json_path = json_filepath
 	#print(json_contents.data)
 
 @export_file var json_path: String:

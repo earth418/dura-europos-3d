@@ -90,7 +90,6 @@ anchor_bottom = 1.0
 text = "Building Link"
 
 [node name="FocusedInfo" type="Control" parent="Camera3D/Control"]
-visible = false
 layout_mode = 1
 anchor_top = 0.5
 anchor_right = 1.0
@@ -119,7 +118,8 @@ grow_horizontal = 0
 grow_vertical = 0
 theme = SubResource("Theme_qhqgy")
 texture = SubResource("ImageTexture_0nox0")
-expand_mode = 3
+expand_mode = 5
+stretch_mode = 5
 
 [node name="ItemList" type="ItemList" parent="Camera3D/Control/FocusedInfo/WikiGallery"]
 layout_mode = 1
@@ -138,7 +138,6 @@ anchor_left = 0.4
 anchor_right = 0.65
 anchor_bottom = 0.5
 grow_horizontal = 2
-grow_vertical = 0
 theme_override_colors/default_color = Color(0, 0, 0, 1)
 theme_override_font_sizes/normal_font_size = 24
 theme_override_styles/normal = SubResource("StyleBoxFlat_ms15b")
